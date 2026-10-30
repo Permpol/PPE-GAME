@@ -1,0 +1,1251 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ภารกิจสวม PPE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Anuphan:wght@400;500;600&display=swap">
+<style>
+/* Layout: hazard-stripe header → three-panel workbench (tray | worker | feedback) → ISO-sign reference cards */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#16213a; --muted:#56617a; --line:#d3d9e2;
+  --stage:#dde4ec; --fig-line:#1b2638;
+  --hiviz:#f5c400; --hiviz-ink:#3a2e00; --sign:#1d5fa8; --sign-ink:#ffffff;
+  --ok:#1d7f46; --ok-bg:#e3f4ea; --bad:#b93a26; --bad-bg:#fbe7e2;
+  --display:"Bai Jamjuree","Anuphan",system-ui,sans-serif;
+  --body:"Anuphan","Bai Jamjuree",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1520; --surface:#172030; --ink:#e8edf5; --muted:#9aa6ba; --line:#2a3547;
+  --stage:#22304a; --fig-line:#c9d3e2; --hiviz:#f5c400; --hiviz-ink:#2a2100; --sign:#3b82d6; --sign-ink:#ffffff;
+  --ok:#5bd08d; --ok-bg:#163326; --bad:#f08a72; --bad-bg:#3a1d17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1520; --surface:#172030; --ink:#e8edf5; --muted:#9aa6ba; --line:#2a3547;
+  --stage:#22304a; --fig-line:#c9d3e2; --hiviz:#f5c400; --hiviz-ink:#2a2100; --sign:#3b82d6; --sign-ink:#ffffff;
+  --ok:#5bd08d; --ok-bg:#163326; --bad:#f08a72; --bad-bg:#3a1d17; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.stripe{height:12px;background:repeating-linear-gradient(-45deg,var(--hiviz) 0 14px,#1a1a1a 14px 28px)}
+header{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:end;justify-content:space-between;padding-block:24px 20px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.5vw,40px);line-height:1.15;margin:0;text-wrap:balance}
+h1 em{font-style:normal;background:var(--hiviz);color:var(--hiviz-ink);padding:0 .25em;border-radius:4px}
+.lede{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.status{display:flex;gap:10px;flex-wrap:wrap}
+.chip{font-family:var(--display);font-weight:600;font-size:14px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.chip b{color:var(--ink)}
+.btn{font:600 14px var(--display);border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:999px;padding:6px 16px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn:focus-visible,.item:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media (max-width:960px){.bench{grid-template-columns:minmax(0,1fr)}}
+.arena{position:relative;display:grid;grid-template-columns:minmax(62px,104px) minmax(0,1fr) minmax(62px,104px);grid-template-areas:"l s r" "b b b";gap:8px;padding:10px;border-radius:18px;background:#59636f;overflow:hidden}
+.ring{display:flex;flex-direction:column;justify-content:space-around;gap:8px;min-width:0}
+.ring-l{grid-area:l}.ring-r{grid-area:r}
+.ring-b{grid-area:b;flex-direction:row;justify-content:center;flex-wrap:wrap}
+.ring-b .item{flex:0 1 104px}
+.arena .stage{grid-area:s;border-radius:12px;align-self:center}
+.toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-8px);z-index:6;max-width:calc(100% - 20px);padding:8px 14px;border-radius:999px;font:600 13.5px/1.35 var(--display);text-align:center;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.ok{background:#1d7f46}.toast.bad{background:#b93a26}
+.tip{color:var(--muted)}
+@media (max-width:600px){
+  header{padding-block:16px 12px;gap:10px}
+  .chip,.btn{font-size:12.5px;padding:5px 10px}
+  .lede{display:none}
+  h1{font-size:24px}
+  .arena{grid-template-columns:68px minmax(0,1fr) 68px;gap:5px;padding:6px;border-radius:14px}
+  .ring{justify-content:center}
+  .item span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .item{padding:6px 2px 5px;font-size:10.5px;border-radius:10px;gap:2px}
+  .item svg{width:34px;height:34px}
+  .ring{gap:6px}
+  .ring-b .item{flex:0 1 68px}
+  .start-card{padding:16px 14px}
+  .start-card h2{font-size:22px}
+}
+.panel-h{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+
+
+.item{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 8px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:var(--ink);font:500 12.5px/1.3 var(--body);text-align:center}
+.item svg{width:52px;height:52px;pointer-events:none}
+.item:hover{border-color:var(--ink)}
+.item[aria-pressed="true"]{border-color:var(--sign);box-shadow:0 0 0 3px color-mix(in srgb,var(--sign) 30%,transparent)}
+.item.done{opacity:.4;cursor:default;border-style:dashed}
+.item.done::after{content:"✓";position:absolute;top:4px;right:8px;color:var(--ok);font-weight:700}
+.item.bad{opacity:.4;cursor:default;border-style:dashed}
+.item.bad::after{content:"✕";position:absolute;top:4px;right:8px;color:var(--bad);font-weight:700}
+.tip{margin:12px 0 0;font-size:13px;color:var(--muted)}
+
+.stage{background:#59636f;border-radius:16px;padding:0;display:flex;justify-content:center;position:relative;overflow:hidden}
+.stage::before{content:none}
+.scene{pointer-events:none}
+.start-dice{color:var(--ink)!important;font-weight:600;margin-bottom:4px!important}
+#fig{width:100%;max-width:330px;height:auto;max-height:72vh;position:relative;touch-action:manipulation}
+#fig .o{stroke:#1b2638;stroke-width:2.2;stroke-linejoin:round}
+.layer{opacity:0;transform:translateY(-10px);transition:opacity .35s ease,transform .35s cubic-bezier(.2,1.4,.4,1)}
+.layer.on{opacity:1;transform:none}
+#hl rect{fill:color-mix(in srgb,var(--hiviz) 28%,transparent);stroke:var(--hiviz);stroke-width:2.5;stroke-dasharray:7 5}
+.stage.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+
+.feedback{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.tag{display:inline-block;font:600 12px var(--display);letter-spacing:.05em;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.bad{background:var(--bad-bg);color:var(--bad)} .tag.info{background:var(--hiviz);color:var(--hiviz-ink)}
+.feedback h3{font:700 21px/1.3 var(--display);margin:0 0 4px;text-wrap:balance}
+.feedback .en{color:var(--muted);font-size:13px;margin:0 0 10px}
+.feedback h4{font:600 13px var(--display);letter-spacing:.04em;margin:12px 0 4px;color:var(--muted)}
+.feedback ul,.feedback ol{margin:0;padding-left:20px}
+.feedback li{margin:2px 0}
+.feedback p{margin:0}
+.done-banner{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--ok-bg);color:var(--ok);font-weight:600}
+
+.ref{margin-top:48px}
+.ref h2{font:700 26px/1.2 var(--display);margin:0 0 6px}
+.ref .sub{color:var(--muted);margin:0 0 20px;max-width:70ch}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:580px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card-top{display:flex;gap:12px;align-items:center}
+.sign{flex:none;width:52px;height:52px;border-radius:50%;background:var(--sign);display:grid;place-items:center}
+.sign svg{width:34px;height:34px}
+.card h3{font:700 17px/1.25 var(--display);margin:0}
+.code{font:600 11.5px var(--display);color:var(--muted);letter-spacing:.05em}
+.card h4{font:600 12.5px var(--display);color:var(--muted);margin:4px 0 0;letter-spacing:.04em}
+.card ul{margin:0;padding-left:18px;font-size:14px}
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+@media (max-width:700px){.notes{grid-template-columns:minmax(0,1fr)}}
+.note{border-left:5px solid var(--hiviz);background:var(--surface);border-radius:4px 12px 12px 4px;padding:14px 16px}
+.note h3{font:700 16px var(--display);margin:0 0 6px}
+.note ol{margin:0;padding-left:20px}
+.timer{min-width:118px;text-align:center}
+.timer.run{border-color:var(--hiviz);background:color-mix(in srgb,var(--hiviz) 18%,var(--surface))}
+.timer.end{border-color:var(--ok);color:var(--ok)}
+.start-ov{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(15,21,32,.55);backdrop-filter:blur(2px)}
+.start-ov[hidden]{display:none!important}
+.start-card{background:var(--surface);color:var(--ink);border-radius:16px;padding:22px 20px;text-align:center;max-width:280px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.start-card h2{font:700 26px/1.2 var(--display);margin:2px 0 8px}
+.start-card p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.start-k{font:600 12px var(--display)!important;letter-spacing:.06em;color:var(--bad)!important;margin:0!important}
+.btn-start{font:700 18px var(--display);background:var(--hiviz);color:var(--hiviz-ink);border:2px solid #1a1a1a;border-radius:999px;padding:10px 28px;cursor:pointer}
+.btn-start:hover{filter:brightness(1.07)}
+.btn-start:focus-visible{outline:3px solid var(--sign);outline-offset:3px}
+.arena.locked .item{opacity:.55;cursor:not-allowed}
+.ghost{position:fixed;left:0;top:0;width:68px;height:68px;pointer-events:none;z-index:50;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+@media (prefers-reduced-motion:reduce){.layer{transition:none}.stage.shake{animation:none}}
+</style>
+
+<div class="stripe" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>ภารกิจสวม <em>PPE</em> <span id="jobTitle"></span></h1>
+      <p class="lede" id="lede"></p>
+    </div>
+    <div class="status">
+      <span class="chip">สวมแล้ว <b id="count">0</b>/<span id="total">0</span></span>
+      <span class="chip">พลาด <b id="miss">0</b> ครั้ง</span>
+      <span class="chip timer" id="timerChip">⏱ <b id="time">00:00.0</b></span>
+      <span class="chip" id="bestChip" hidden>ดีที่สุด <b id="best">-</b></span>
+      <button class="btn" id="reset" type="button">เริ่มใหม่</button>
+      <button class="btn" id="musicBtn" type="button" aria-pressed="true" title="เปิด/ปิดเพลงและเสียงประกอบ">🔊 เพลง: เปิด</button>
+    </div>
+  </header>
+
+  <div class="bench">
+    <section aria-label="พนักงานและอุปกรณ์">
+      <div class="arena" id="tray">
+          <div class="start-ov" id="startOv">
+          <div class="start-card">
+            <p class="start-k" id="startJob"></p>
+            <h2>พร้อมหรือยัง?</h2>
+            <p class="start-dice">🎲 สุ่มประเภทงานแล้ว</p>
+            <p id="startTxt"></p>
+            <button class="btn-start" id="startBtn" type="button">▶ เริ่มเกม</button>
+          </div>
+        </div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="ring ring-l" id="ringL"></div>
+        <div class="stage" id="stage">
+        <svg id="fig" viewBox="0 0 300 560" role="img" aria-label="พนักงานที่รอสวมอุปกรณ์ป้องกัน">
+          <g id="scene-chem" class="scene" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="560" fill="#7d8894"/>
+            <g stroke="#6c7682" stroke-width="2"><path d="M0 60 H300 M0 130 H300 M0 200 H300 M0 270 H300"/></g>
+            <rect x="0" y="0" width="300" height="18" fill="#4b545e"/>
+            <g fill="#fff6c8" opacity=".9"><rect x="40" y="18" width="50" height="6"/><rect x="210" y="18" width="50" height="6"/></g>
+            <!-- storage tank -->
+            <rect x="196" y="120" width="100" height="250" rx="16" fill="#c9d1d9" stroke="#5b6672" stroke-width="2"/>
+            <path d="M196 170 H296 M196 320 H296" stroke="#9aa5b1" stroke-width="3"/>
+            <!-- NFPA diamond -->
+            <g transform="translate(246 238) rotate(45)"><rect x="-22" y="-22" width="22" height="22" fill="#d7262b"/><rect x="0" y="-22" width="22" height="22" fill="#f2c500"/><rect x="-22" y="0" width="22" height="22" fill="#2a64c3"/><rect x="0" y="0" width="22" height="22" fill="#fff"/><rect x="-22" y="-22" width="44" height="44" fill="none" stroke="#111" stroke-width="2"/></g>
+            <g font-family="sans-serif" font-weight="700" font-size="13" text-anchor="middle"><text x="246" y="223" fill="#fff">3</text><text x="231" y="243" fill="#fff">2</text><text x="261" y="243">1</text></g>
+            <!-- shelving with drums -->
+            <g stroke="#3f4954" stroke-width="3"><path d="M4 150 V370 M84 150 V370 M4 260 H84 M4 370 H84"/></g>
+            <g stroke="#1b2638" stroke-width="1.5">
+              <rect x="10" y="212" width="32" height="46" rx="4" fill="#2a64c3"/><rect x="46" y="212" width="32" height="46" rx="4" fill="#2a64c3"/>
+              <rect x="10" y="322" width="32" height="46" rx="4" fill="#e07b22"/><rect x="46" y="322" width="32" height="46" rx="4" fill="#2a64c3"/>
+            </g>
+            <g stroke="#1b2638" stroke-width="1" opacity=".5"><path d="M10 226 H42 M46 226 H78 M10 244 H42 M46 244 H78 M10 336 H42 M46 336 H78 M10 354 H42 M46 354 H78"/></g>
+            <g fill="#f2c500" stroke="#111" stroke-width="1"><path d="M26 160 L36 178 H16 Z"/><path d="M62 160 L72 178 H52 Z"/></g>
+            <!-- floor -->
+            <rect x="0" y="370" width="300" height="190" fill="#a9adb1"/>
+            <g stroke="#979ba0" stroke-width="2"><path d="M0 430 H300 M0 500 H300 M100 370 L60 560 M200 370 L240 560"/></g>
+            <!-- spill: tipped drum + puddle -->
+            <ellipse cx="62" cy="470" rx="64" ry="18" fill="#9bd23a" opacity=".85"/>
+            <ellipse cx="78" cy="474" rx="40" ry="9" fill="#c4ef6a" opacity=".7"/>
+            <g transform="translate(14 432) rotate(-12)"><rect x="0" y="0" width="54" height="34" rx="5" fill="#e07b22" stroke="#1b2638" stroke-width="1.5"/><ellipse cx="54" cy="17" rx="5" ry="16" fill="#b8601a" stroke="#1b2638" stroke-width="1.5"/></g>
+            <ellipse cx="248" cy="540" rx="40" ry="8" fill="#9bd23a" opacity=".6"/>
+            <!-- spill kit -->
+            <rect x="236" y="430" width="52" height="58" rx="4" fill="#f2c500" stroke="#6b5200" stroke-width="2"/>
+            <text x="262" y="456" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="9" fill="#3a2e00">SPILL</text>
+            <text x="262" y="468" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="9" fill="#3a2e00">KIT</text>
+            <!-- caution tape -->
+            <g transform="rotate(-4 150 392)"><rect x="-10" y="384" width="320" height="14" fill="#f2c500" stroke="#111" stroke-width="1"/>
+            <g fill="#111"><path d="M0 384 h10 l-10 14 z M30 384 h10 l-10 14 h-10 z M60 384 h10 l-10 14 h-10 z M90 384 h10 l-10 14 h-10 z M210 384 h10 l-10 14 h-10 z M240 384 h10 l-10 14 h-10 z M270 384 h10 l-10 14 h-10 z M300 384 h10 l-10 14 h-10 z"/></g></g>
+          </g>
+          <g id="scene-height" class="scene" aria-hidden="true">
+            <defs>
+              <linearGradient id="skyH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb2e6"/><stop offset="1" stop-color="#d6ecf8"/></linearGradient>
+            </defs>
+            <rect x="0" y="0" width="300" height="560" fill="url(#skyH)"/>
+            <g fill="#fff" opacity=".9"><ellipse cx="60" cy="120" rx="30" ry="10"/><ellipse cx="82" cy="112" rx="18" ry="10"/><ellipse cx="236" cy="170" rx="26" ry="8"/><ellipse cx="250" cy="164" rx="14" ry="8"/></g>
+            <!-- city far below -->
+            <g fill="#9db6c9"><rect x="0" y="420" width="22" height="140"/><rect x="24" y="440" width="18" height="120"/><rect x="44" y="410" width="26" height="150"/><rect x="230" y="430" width="22" height="130"/><rect x="254" y="404" width="26" height="156"/><rect x="282" y="436" width="18" height="124"/></g>
+            <g fill="#c4d6e3"><rect x="72" y="452" width="20" height="108"/><rect x="206" y="446" width="22" height="114"/></g>
+            <!-- top steel beam with anchor point -->
+            <rect x="0" y="6" width="300" height="16" fill="#c0392b" stroke="#6b1d14" stroke-width="2"/>
+            <g stroke="#6b1d14" stroke-width="1.5" opacity=".6"><path d="M0 14 H300"/></g>
+            <rect x="232" y="20" width="16" height="10" fill="#7d8794" stroke="#333" stroke-width="1.5"/>
+            <circle cx="240" cy="34" r="6" fill="none" stroke="#333" stroke-width="3"/>
+            <!-- scaffolding -->
+            <g stroke="#7d8794" stroke-width="5" stroke-linecap="round">
+              <path d="M16 22 V560 M284 22 V560"/>
+              <path d="M16 330 H284 M16 420 H284"/>
+            </g>
+            <g stroke="#7d8794" stroke-width="3" opacity=".8"><path d="M16 120 L284 220 M16 220 L284 120"/></g>
+            <g fill="#4b545e"><circle cx="16" cy="330" r="5"/><circle cx="284" cy="330" r="5"/><circle cx="16" cy="420" r="5"/><circle cx="284" cy="420" r="5"/></g>
+            <!-- warning sign -->
+            <g transform="translate(26 236)"><rect width="58" height="40" rx="4" fill="#f5c400" stroke="#111" stroke-width="2"/>
+              <path d="M29 6 L40 24 H18 Z" fill="none" stroke="#111" stroke-width="2.5"/><path d="M29 12 V18" stroke="#111" stroke-width="2.5"/><circle cx="29" cy="21" r="1.4"/>
+              <text x="29" y="35" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="8" fill="#111">ที่สูง</text></g>
+            <!-- platform plank + toe board -->
+            <rect x="0" y="506" width="300" height="14" fill="#b07a3f" stroke="#6e4a20" stroke-width="2"/>
+            <g stroke="#6e4a20" stroke-width="1" opacity=".6"><path d="M60 506 V520 M140 506 V520 M220 506 V520"/></g>
+            <rect x="0" y="520" width="300" height="8" fill="#f5c400"/>
+            <g fill="#111"><path d="M0 520 h10 l-6 8 h-4 z M24 520 h10 l-6 8 h-10 z M48 520 h10 l-6 8 h-10 z M72 520 h10 l-6 8 h-10 z M96 520 h10 l-6 8 h-10 z M120 520 h10 l-6 8 h-10 z M144 520 h10 l-6 8 h-10 z M168 520 h10 l-6 8 h-10 z M192 520 h10 l-6 8 h-10 z M216 520 h10 l-6 8 h-10 z M240 520 h10 l-6 8 h-10 z M264 520 h10 l-6 8 h-10 z M288 520 h10 l-6 8 h-10 z"/></g>
+            <g stroke="#7d8794" stroke-width="3"><path d="M16 528 L150 560 M284 528 L150 560"/></g>
+          </g>
+          <g id="scene-noise" class="scene" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="560" fill="#46505c"/>
+            <g stroke="#3a434e" stroke-width="2"><path d="M0 70 H300 M0 150 H300 M0 230 H300 M0 310 H300"/></g>
+            <rect x="0" y="0" width="300" height="14" fill="#2c333c"/>
+            <g fill="#fff6c8" opacity=".85"><rect x="30" y="14" width="60" height="5"/><rect x="210" y="14" width="60" height="5"/></g>
+            <!-- mandatory ear protection sign -->
+            <circle cx="46" cy="70" r="27" fill="#1d5fa8" stroke="#fff" stroke-width="3"/>
+            <path d="M32 74 Q32 50 46 50 Q60 50 60 74" fill="none" stroke="#fff" stroke-width="4"/>
+            <rect x="26" y="68" width="10" height="16" rx="4" fill="#fff"/><rect x="56" y="68" width="10" height="16" rx="4" fill="#fff"/>
+            <!-- dB meter -->
+            <rect x="208" y="36" width="84" height="54" rx="6" fill="#111" stroke="#888" stroke-width="2"/>
+            <text x="250" y="60" text-anchor="middle" font-family="monospace" font-weight="700" font-size="20" fill="#ff4a3a">95 dB</text>
+            <rect x="218" y="70" width="64" height="8" rx="2" fill="#333"/>
+            <rect x="218" y="70" width="18" height="8" fill="#3cc46b"/><rect x="236" y="70" width="18" height="8" fill="#f5c400"/><rect x="254" y="70" width="24" height="8" fill="#ff4a3a"/>
+            <!-- stamping press (left) -->
+            <rect x="6" y="150" width="78" height="250" rx="4" fill="#2f6f99" stroke="#1b3d55" stroke-width="2"/>
+            <rect x="16" y="168" width="58" height="40" fill="#24587a"/>
+            <rect x="26" y="230" width="38" height="46" fill="#9aa5b1" stroke="#1b3d55" stroke-width="2"/>
+            <rect x="20" y="300" width="50" height="14" fill="#c9d1d9" stroke="#1b3d55" stroke-width="2"/>
+            <circle cx="70" cy="188" r="5" fill="#ff4a3a"/><circle cx="56" cy="188" r="5" fill="#3cc46b"/>
+            <g fill="#f5c400"><path d="M8 380 h10 l-10 14 z M28 380 h10 l-10 14 h-10 z M48 380 h10 l-10 14 h-10 z M68 380 h10 l-6 14 h-10 z"/></g>
+            <!-- compressor (right) -->
+            <rect x="208" y="250" width="88" height="150" rx="6" fill="#e07b22" stroke="#7a3d0d" stroke-width="2"/>
+            <circle cx="252" cy="312" r="32" fill="#7a3d0d"/><circle cx="252" cy="312" r="26" fill="#3a3a3a"/>
+            <g stroke="#bbb" stroke-width="5" stroke-linecap="round"><path d="M252 312 L252 290 M252 312 L271 323 M252 312 L233 323"/></g>
+            <circle cx="252" cy="312" r="5" fill="#ddd"/>
+            <rect x="218" y="360" width="68" height="10" fill="#7a3d0d"/>
+            <!-- sound waves -->
+            <g fill="none" stroke="#f5c400" stroke-width="3" stroke-linecap="round" opacity=".85">
+              <path d="M90 200 Q100 220 90 240"/><path d="M98 190 Q114 220 98 250"/><path d="M106 180 Q128 220 106 260"/>
+              <path d="M202 290 Q192 312 202 334"/><path d="M194 278 Q178 312 194 346"/>
+            </g>
+            <!-- floor -->
+            <rect x="0" y="400" width="300" height="160" fill="#6b7480"/>
+            <g stroke="#5c6470" stroke-width="2"><path d="M0 470 H300 M0 530 H300 M100 400 L70 560 M200 400 L230 560"/></g>
+            <rect x="0" y="400" width="300" height="8" fill="#f5c400"/>
+            <g fill="#111"><path d="M0 400 h8 l-6 8 h-2 z M20 400 h8 l-6 8 h-8 z M40 400 h8 l-6 8 h-8 z M60 400 h8 l-6 8 h-8 z M80 400 h8 l-6 8 h-8 z M100 400 h8 l-6 8 h-8 z M120 400 h8 l-6 8 h-8 z M140 400 h8 l-6 8 h-8 z M160 400 h8 l-6 8 h-8 z M180 400 h8 l-6 8 h-8 z M200 400 h8 l-6 8 h-8 z M220 400 h8 l-6 8 h-8 z M240 400 h8 l-6 8 h-8 z M260 400 h8 l-6 8 h-8 z M280 400 h8 l-6 8 h-8 z"/></g>
+            <!-- pallet with metal parts -->
+            <rect x="12" y="508" width="60" height="10" fill="#b07a3f" stroke="#6e4a20" stroke-width="1.5"/>
+            <g fill="#9aa5b1" stroke="#4b545e" stroke-width="1.5"><rect x="16" y="490" width="24" height="18"/><rect x="44" y="490" width="24" height="18"/><rect x="30" y="474" width="24" height="16"/></g>
+          </g>
+          <g id="scene-fire" class="scene" aria-hidden="true">
+            <defs><linearGradient id="skyF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1430"/><stop offset=".6" stop-color="#7a2a1e"/><stop offset="1" stop-color="#e0662a"/></linearGradient></defs>
+            <rect x="0" y="0" width="300" height="560" fill="url(#skyF)"/>
+            <!-- smoke -->
+            <g fill="#3a3540" opacity=".85"><ellipse cx="70" cy="60" rx="60" ry="26"/><ellipse cx="130" cy="40" rx="50" ry="22"/><ellipse cx="220" cy="70" rx="70" ry="28"/><ellipse cx="270" cy="30" rx="40" ry="18"/></g>
+            <g fill="#57505c" opacity=".7"><ellipse cx="40" cy="110" rx="36" ry="16"/><ellipse cx="250" cy="120" rx="44" ry="16"/></g>
+            <!-- burning building left -->
+            <rect x="0" y="130" width="92" height="300" fill="#4a3a36" stroke="#2a1f1c" stroke-width="2"/>
+            <g fill="#ffb347" stroke="#2a1f1c" stroke-width="2"><rect x="12" y="150" width="26" height="30"/><rect x="54" y="150" width="26" height="30"/><rect x="12" y="210" width="26" height="30"/><rect x="54" y="210" width="26" height="30" fill="#1a1414"/><rect x="12" y="270" width="26" height="30" fill="#1a1414"/><rect x="54" y="270" width="26" height="30"/></g>
+            <g transform="translate(16 180) scale(0.7)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(58 180) scale(0.6)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(16 240) scale(0.55)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(58 300) scale(0.6)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(10 132) scale(1.1)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(50 132) scale(0.9)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g>
+            <!-- burning building right -->
+            <rect x="214" y="170" width="86" height="260" fill="#3e3338" stroke="#2a1f1c" stroke-width="2"/>
+            <g fill="#ffb347" stroke="#2a1f1c" stroke-width="2"><rect x="226" y="190" width="24" height="28"/><rect x="264" y="190" width="24" height="28" fill="#1a1414"/><rect x="226" y="246" width="24" height="28" fill="#1a1414"/><rect x="264" y="246" width="24" height="28"/></g>
+            <g transform="translate(228 218) scale(0.6)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(266 274) scale(0.6)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(230 172) scale(1)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g><g transform="translate(266 172) scale(0.8)"><path d="M0 0 Q-14 -18 -4 -40 Q0 -26 8 -30 Q4 -50 18 -64 Q20 -40 30 -34 Q34 -20 26 0 Z" fill="#ff5a1f"/><path d="M6 0 Q-2 -12 6 -26 Q10 -16 14 -20 Q16 -8 20 0 Z" fill="#ffd23f"/></g>
+            <!-- sparks -->
+            <g fill="#ffd23f"><circle cx="110" cy="150" r="2"/><circle cx="190" cy="120" r="2.5"/><circle cx="200" cy="200" r="1.8"/><circle cx="100" cy="230" r="1.8"/><circle cx="160" cy="110" r="1.5"/></g>
+            <!-- ground -->
+            <rect x="0" y="430" width="300" height="130" fill="#3b3a3f"/>
+            <g stroke="#55545a" stroke-width="2"><path d="M0 480 H300 M0 530 H300"/></g>
+            <g fill="#e0662a" opacity=".25"><ellipse cx="150" cy="450" rx="150" ry="14"/></g>
+            <!-- fire hose on ground -->
+            <path d="M0 520 Q60 490 90 530 Q120 560 170 540 Q230 515 300 540" fill="none" stroke="#1b1b1b" stroke-width="10"/>
+            <path d="M0 520 Q60 490 90 530 Q120 560 170 540 Q230 515 300 540" fill="none" stroke="#e8e2cf" stroke-width="7"/>
+            <!-- hydrant -->
+            <g stroke="#5a0f0f" stroke-width="2"><rect x="250" y="452" width="24" height="44" rx="4" fill="#d7262b"/><rect x="244" y="464" width="36" height="10" rx="3" fill="#d7262b"/><path d="M250 452 Q262 436 274 452 Z" fill="#d7262b"/><rect x="246" y="494" width="32" height="6" fill="#a51c20"/></g>
+            <!-- cones -->
+            <g stroke="#7a2d0d" stroke-width="1.5"><path d="M18 500 L28 462 L38 500 Z" fill="#f06a2a"/><rect x="12" y="498" width="32" height="6" fill="#f06a2a"/></g>
+            <path d="M22 484 H34 L33 478 H23 Z" fill="#fff"/>
+          </g>
+          <g id="scene-heat" class="scene" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="560" fill="#2a2420"/>
+            <g stroke="#3a312b" stroke-width="2"><path d="M0 80 H300 M0 170 H300 M0 260 H300"/></g>
+            <rect x="0" y="0" width="300" height="14" fill="#1a1512"/>
+            <!-- furnace left -->
+            <rect x="0" y="120" width="96" height="300" fill="#5a4a40" stroke="#2a1f1a" stroke-width="2"/>
+            <g stroke="#3e322b" stroke-width="2"><path d="M0 160 H96 M0 200 H96 M0 240 H96 M0 280 H96 M0 320 H96 M0 360 H96 M24 120 V160 M60 160 V200 M24 200 V240 M60 240 V280 M24 360 V400"/></g>
+            <rect x="14" y="240" width="68" height="70" rx="30" fill="#1a0d06" stroke="#2a1f1a" stroke-width="3"/>
+            <rect x="20" y="248" width="56" height="60" rx="26" fill="#ff7a1a"/>
+            <ellipse cx="48" cy="284" rx="22" ry="20" fill="#ffc23d"/><ellipse cx="48" cy="290" rx="12" ry="11" fill="#fff3b0"/>
+            <rect x="34" y="60" width="28" height="60" fill="#4a3c33" stroke="#2a1f1a" stroke-width="2"/>
+            <g fill="#4d4448" opacity=".8"><ellipse cx="48" cy="44" rx="30" ry="14"/><ellipse cx="78" cy="26" rx="26" ry="12"/></g>
+            <!-- heat glow -->
+            <ellipse cx="60" cy="290" rx="110" ry="90" fill="#ff7a1a" opacity=".12"/>
+            <!-- ladle with molten metal (right) -->
+            <path d="M222 170 V120 M290 170 V120 M222 120 H290" stroke="#555" stroke-width="4" fill="none"/>
+            <path d="M206 170 H300 L292 250 Q256 268 218 250 Z" fill="#4b4f56" stroke="#1d1f23" stroke-width="2"/>
+            <ellipse cx="253" cy="172" rx="47" ry="10" fill="#ff8a1a" stroke="#1d1f23" stroke-width="2"/>
+            <ellipse cx="253" cy="172" rx="30" ry="5" fill="#ffd23f"/>
+            <path d="M210 176 Q196 200 204 240 Q206 260 200 300" stroke="#ff9a1a" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M210 176 Q196 200 204 240 Q206 260 200 300" stroke="#ffe27a" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- mold boxes -->
+            <g fill="#6b5a4c" stroke="#2a1f1a" stroke-width="2"><rect x="184" y="340" width="56" height="40"/><rect x="244" y="340" width="56" height="40"/></g>
+            <ellipse cx="212" cy="342" rx="10" ry="3" fill="#ff8a1a"/>
+            <!-- sparks -->
+            <g fill="#ffd23f"><circle cx="190" cy="300" r="2"/><circle cx="214" cy="290" r="1.6"/><circle cx="180" cy="320" r="1.8"/><circle cx="120" cy="250" r="1.6"/><circle cx="110" cy="300" r="2"/><circle cx="196" cy="270" r="1.4"/></g>
+            <!-- hot warning sign -->
+            <g transform="translate(222 40)"><path d="M30 2 L58 50 H2 Z" fill="#f5c400" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M20 40 Q16 32 22 26 Q20 34 26 32 M30 40 Q26 30 32 22 Q30 32 36 30 M40 40 Q36 32 42 26" stroke="#111" stroke-width="2.5" fill="none"/><path d="M16 44 H44" stroke="#111" stroke-width="3"/></g>
+            <!-- floor -->
+            <rect x="0" y="420" width="300" height="140" fill="#4a423c"/>
+            <g stroke="#3a332e" stroke-width="2"><path d="M0 480 H300 M0 530 H300 M100 420 L70 560 M200 420 L230 560"/></g>
+            <ellipse cx="60" cy="424" rx="90" ry="10" fill="#ff7a1a" opacity=".25"/>
+            <rect x="0" y="420" width="300" height="7" fill="#f5c400"/>
+            <g fill="#111"><path d="M0 420 h8 l-5 7 h-3 z M20 420 h8 l-5 7 h-8 z M40 420 h8 l-5 7 h-8 z M60 420 h8 l-5 7 h-8 z M80 420 h8 l-5 7 h-8 z M100 420 h8 l-5 7 h-8 z M120 420 h8 l-5 7 h-8 z M140 420 h8 l-5 7 h-8 z M160 420 h8 l-5 7 h-8 z M180 420 h8 l-5 7 h-8 z M200 420 h8 l-5 7 h-8 z M220 420 h8 l-5 7 h-8 z M240 420 h8 l-5 7 h-8 z M260 420 h8 l-5 7 h-8 z M280 420 h8 l-5 7 h-8 z"/></g>
+            <!-- tongs -->
+            <path d="M226 520 L290 470 M232 528 L294 480" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <g id="scene-weld" class="scene" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="560" fill="#2e3440"/>
+            <g stroke="#3b4252" stroke-width="2"><path d="M0 90 H300 M0 180 H300 M0 270 H300"/></g>
+            <rect x="0" y="0" width="300" height="14" fill="#1f242d"/>
+            <g fill="#fff6c8" opacity=".8"><rect x="40" y="14" width="50" height="5"/><rect x="210" y="14" width="50" height="5"/></g>
+            <!-- welding curtain left -->
+            <rect x="0" y="40" width="80" height="6" fill="#555"/>
+            <g fill="#c0392b" fill-opacity=".75" stroke="#7a1d14" stroke-width="1.5"><path d="M2 46 H26 V420 H2 Z"/><path d="M28 46 H52 V420 H28 Z"/><path d="M54 46 H78 V420 H54 Z"/></g>
+            <!-- mandatory sign -->
+            <circle cx="40" cy="110" r="24" fill="#1d5fa8" stroke="#fff" stroke-width="3"/>
+            <path d="M26 98 Q40 88 54 98 V120 Q40 128 26 120 Z" fill="#fff"/><rect x="31" y="104" width="18" height="8" rx="2" fill="#1d5fa8"/>
+            <!-- steel beam workpiece + bright arc (right) -->
+            <rect x="196" y="330" width="104" height="18" fill="#7d8794" stroke="#3b4252" stroke-width="2"/>
+            <rect x="240" y="270" width="16" height="60" fill="#8a94a1" stroke="#3b4252" stroke-width="2"/>
+            <path d="M244 330 L256 330" stroke="#ff9a1a" stroke-width="4"/>
+            <circle cx="246" cy="328" r="22" fill="#cfe9ff" opacity=".35"/>
+            <circle cx="246" cy="328" r="10" fill="#eaf6ff" opacity=".9"/><circle cx="246" cy="328" r="4" fill="#fff"/>
+            <path d="M268 250 L250 322" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+            <path d="M268 250 Q290 230 300 236" stroke="#111" stroke-width="3" fill="none"/>
+            <g stroke="#ffd23f" stroke-width="2" stroke-linecap="round"><path d="M232 318 L214 300 M236 312 L226 288 M256 318 L276 298 M258 324 L284 318 M240 340 L222 362 M252 338 L262 366 M230 330 L206 332"/></g>
+            <g fill="#ffb347"><circle cx="208" cy="294" r="2"/><circle cx="222" cy="282" r="1.6"/><circle cx="288" cy="294" r="1.8"/><circle cx="214" cy="372" r="1.8"/><circle cx="268" cy="378" r="1.6"/></g>
+            <!-- gas cylinders -->
+            <g stroke="#1f242d" stroke-width="2"><rect x="96" y="250" width="26" height="150" rx="12" fill="#2a64c3"/><rect x="126" y="262" width="26" height="138" rx="12" fill="#d7262b"/></g>
+            <g fill="#888" stroke="#1f242d" stroke-width="1.5"><rect x="103" y="236" width="12" height="16"/><rect x="133" y="248" width="12" height="16"/></g>
+            <path d="M96 300 H152" stroke="#f5c400" stroke-width="4"/>
+            <!-- welding machine -->
+            <rect x="196" y="370" width="70" height="50" rx="4" fill="#e07b22" stroke="#7a3d0d" stroke-width="2"/>
+            <circle cx="214" cy="392" r="8" fill="#333"/><rect x="230" y="384" width="28" height="12" fill="#111"/>
+            <!-- floor -->
+            <rect x="0" y="420" width="300" height="140" fill="#5b6270"/>
+            <g stroke="#4c525e" stroke-width="2"><path d="M0 480 H300 M0 530 H300 M100 420 L70 560 M200 420 L230 560"/></g>
+            <g fill="#ffb347"><circle cx="190" cy="440" r="1.8"/><circle cx="276" cy="450" r="1.6"/><circle cx="230" cy="436" r="1.4"/></g>
+            <path d="M232 420 Q220 470 280 500 Q300 510 300 540" stroke="#111" stroke-width="4" fill="none"/>
+          </g>
+          <g id="scene-elec" class="scene" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="560" fill="#3a4250"/>
+            <g stroke="#454e5e" stroke-width="2"><path d="M0 90 H300 M0 180 H300 M0 270 H300"/></g>
+            <rect x="0" y="0" width="300" height="14" fill="#262c36"/>
+            <g fill="#fff6c8" opacity=".8"><rect x="40" y="14" width="50" height="5"/><rect x="210" y="14" width="50" height="5"/></g>
+            <!-- cable trays -->
+            <rect x="0" y="40" width="300" height="10" fill="#7d8794" stroke="#4b545e" stroke-width="1.5"/>
+            <g stroke-width="4"><path d="M0 46 H300" stroke="#111"/><path d="M0 43 H300" stroke="#d7262b" stroke-width="2.5"/></g>
+            <!-- switchgear cabinets left -->
+            <g stroke="#3b4a3b" stroke-width="2" fill="#b9c4b0"><rect x="0" y="110" width="44" height="310"/><rect x="44" y="110" width="44" height="310"/></g>
+            <g fill="#2b2f36"><rect x="8" y="130" width="28" height="18" rx="2"/><rect x="52" y="130" width="28" height="18" rx="2"/></g>
+            <g fill="#3cc46b"><circle cx="14" cy="166" r="4"/><circle cx="58" cy="166" r="4"/></g><g fill="#ff4a3a"><circle cx="28" cy="166" r="4"/><circle cx="72" cy="166" r="4"/></g>
+            <g stroke="#555" stroke-width="3"><path d="M36 260 V300 M80 260 V300"/></g>
+            <!-- open panel right with exposed busbars -->
+            <rect x="200" y="100" width="100" height="320" fill="#9aa5b1" stroke="#4b545e" stroke-width="2"/>
+            <rect x="210" y="116" width="80" height="210" fill="#1f242d"/>
+            <g stroke-width="6"><path d="M226 126 V316" stroke="#c87533"/><path d="M250 126 V316" stroke="#c87533"/><path d="M274 126 V316" stroke="#c87533"/></g>
+            <g fill="#e8e2cf"><rect x="216" y="160" width="68" height="8"/><rect x="216" y="260" width="68" height="8"/></g>
+            <!-- arc flash glimmer -->
+            <circle cx="250" cy="214" r="18" fill="#bfe6ff" opacity=".35"/><path d="M236 206 L248 214 L240 220 L256 232" stroke="#eaf6ff" stroke-width="3" fill="none"/>
+            <!-- danger sign -->
+            <g transform="translate(208 336)"><rect width="84" height="70" rx="4" fill="#fff" stroke="#111" stroke-width="2"/><rect x="2" y="2" width="80" height="20" fill="#d7262b"/>
+              <text x="42" y="17" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="12" fill="#fff">DANGER</text>
+              <path d="M42 26 L62 60 H22 Z" fill="#f5c400" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M44 34 L38 46 H44 L40 56 L48 42 H42 Z" fill="#111"/></g>
+            <!-- floor + insulating mat -->
+            <rect x="0" y="420" width="300" height="140" fill="#5b6270"/>
+            <g stroke="#4c525e" stroke-width="2"><path d="M0 500 H300 M100 420 L70 560 M200 420 L230 560"/></g>
+            <rect x="60" y="470" width="180" height="62" rx="4" fill="#2b2b2b" stroke="#111" stroke-width="2"/>
+            <g stroke="#444" stroke-width="2"><path d="M70 482 H230 M70 494 H230 M70 506 H230 M70 518 H230"/></g>
+            <!-- LOTO lock + voltage tester -->
+            <g transform="translate(20 300)"><rect x="0" y="12" width="22" height="22" rx="3" fill="#d7262b" stroke="#5a0f0f" stroke-width="2"/><path d="M5 12 V6 Q11 -2 17 6 V12" fill="none" stroke="#999" stroke-width="3"/></g>
+            <g transform="translate(18 520)"><rect x="0" y="0" width="22" height="34" rx="4" fill="#f5c400" stroke="#333" stroke-width="2"/><rect x="4" y="4" width="14" height="10" fill="#9fd3a8"/><path d="M11 34 V44" stroke="#d7262b" stroke-width="3"/></g>
+          </g>
+          <!-- base worker -->
+          <g id="base">
+            <rect class="o" x="105" y="280" width="43" height="215" rx="10" fill="#7b93b0"/>
+            <rect class="o" x="152" y="280" width="43" height="215" rx="10" fill="#7b93b0"/>
+            <rect class="o" x="96" y="488" width="54" height="20" rx="10" fill="#e4e4e4"/>
+            <rect class="o" x="150" y="488" width="54" height="20" rx="10" fill="#e4e4e4"/>
+            <rect class="o" x="74" y="172" width="26" height="126" rx="12" fill="#e7b088"/>
+            <rect class="o" x="200" y="172" width="26" height="126" rx="12" fill="#e7b088"/>
+            <circle class="o" cx="87" cy="308" r="14" fill="#e7b088"/>
+            <circle class="o" cx="213" cy="308" r="14" fill="#e7b088"/>
+            <rect class="o" x="100" y="112" width="100" height="182" rx="22" fill="#b7bfc9"/>
+            <rect class="o" x="72" y="120" width="30" height="62" rx="14" fill="#b7bfc9"/>
+            <rect class="o" x="198" y="120" width="30" height="62" rx="14" fill="#b7bfc9"/>
+            <rect class="o" x="138" y="96" width="24" height="22" fill="#e7b088"/>
+            <circle class="o" cx="150" cy="68" r="32" fill="#e7b088"/>
+            <path d="M118 62 Q120 34 150 34 Q180 34 182 62 Q170 50 150 50 Q130 50 118 62 Z" fill="#3a2a22"/>
+            <circle cx="138" cy="72" r="3" fill="#1b2638"/><circle cx="162" cy="72" r="3" fill="#1b2638"/>
+            <path d="M142 86 Q150 91 158 86" fill="none" stroke="#1b2638" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <g id="L-suit" class="layer">
+            <rect class="o" x="99" y="282" width="51" height="212" rx="10" fill="#d4dc2c"/>
+            <rect class="o" x="150" y="282" width="51" height="212" rx="10" fill="#d4dc2c"/>
+            <rect class="o" x="66" y="116" width="36" height="182" rx="14" fill="#d4dc2c"/>
+            <rect class="o" x="198" y="116" width="36" height="182" rx="14" fill="#d4dc2c"/>
+            <rect class="o" x="94" y="106" width="112" height="192" rx="22" fill="#d4dc2c"/>
+            <path class="o" fill-rule="evenodd" fill="#d4dc2c" d="M150 22 C108 22 102 50 104 78 C106 106 122 118 150 118 C178 118 194 106 196 78 C198 50 192 22 150 22 Z M150 40 C128 40 120 56 120 72 C120 94 134 106 150 106 C166 106 180 94 180 72 C180 56 172 40 150 40 Z"/>
+            <rect x="144" y="118" width="12" height="172" fill="#b3ba1c" stroke="#1b2638" stroke-width="1.5"/>
+            <rect x="67" y="276" width="34" height="10" fill="#9aa1a8"/><rect x="199" y="276" width="34" height="10" fill="#9aa1a8"/>
+            <rect x="100" y="478" width="49" height="10" fill="#9aa1a8"/><rect x="151" y="478" width="49" height="10" fill="#9aa1a8"/>
+            <text x="150" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="#4b4f00" font-family="sans-serif">CHEM</text>
+          </g>
+          <g id="L-boots" class="layer">
+            <rect class="o" x="99" y="398" width="51" height="98" rx="8" fill="#2f7d3a"/>
+            <rect class="o" x="150" y="398" width="51" height="98" rx="8" fill="#2f7d3a"/>
+            <rect class="o" x="92" y="486" width="60" height="24" rx="10" fill="#2f7d3a"/>
+            <rect class="o" x="148" y="486" width="60" height="24" rx="10" fill="#2f7d3a"/>
+            <rect x="99" y="398" width="51" height="8" fill="#256630"/><rect x="150" y="398" width="51" height="8" fill="#256630"/>
+            <rect x="94" y="504" width="56" height="5" fill="#1a1a1a"/><rect x="150" y="504" width="56" height="5" fill="#1a1a1a"/>
+          </g>
+          <g id="L-gloves" class="layer">
+            <rect class="o" x="68" y="248" width="36" height="50" rx="6" fill="#2e9e5b"/>
+            <rect class="o" x="196" y="248" width="36" height="50" rx="6" fill="#2e9e5b"/>
+            <circle class="o" cx="87" cy="312" r="18" fill="#2e9e5b"/>
+            <circle class="o" cx="213" cy="312" r="18" fill="#2e9e5b"/>
+            <path d="M68 262 H104 M196 262 H232" stroke="#9aa1a8" stroke-width="6"/>
+          </g>
+          <g id="L-resp" class="layer">
+            <path d="M124 80 L108 74 M176 80 L192 74" stroke="#2b2f36" stroke-width="3"/>
+            <path class="o" d="M132 78 Q150 70 168 78 L172 96 Q150 112 128 96 Z" fill="#4a4f58"/>
+            <circle class="o" cx="126" cy="96" r="10" fill="#c9b23a"/><circle cx="126" cy="96" r="4" fill="#8a7a20"/>
+            <circle class="o" cx="174" cy="96" r="10" fill="#c9b23a"/><circle cx="174" cy="96" r="4" fill="#8a7a20"/>
+            <circle cx="150" cy="98" r="5" fill="#2b2f36"/>
+          </g>
+          <g id="L-goggles" class="layer">
+            <rect x="114" y="66" width="72" height="5" fill="#2d6a4f"/>
+            <rect x="120" y="58" width="60" height="22" rx="9" fill="#cdeee0" fill-opacity=".85" stroke="#2d6a4f" stroke-width="3"/>
+            <circle cx="124" cy="69" r="2.4" fill="#2d6a4f"/><circle cx="176" cy="69" r="2.4" fill="#2d6a4f"/>
+          </g>
+          <g id="L-shield" class="layer">
+            <rect x="108" y="40" width="84" height="9" rx="4" fill="#3b4a5a" stroke="#1b2638" stroke-width="1.5"/>
+            <path d="M110 49 H190 L194 116 Q150 128 106 116 Z" fill="#dff3ff" fill-opacity=".38" stroke="#4f8db3" stroke-width="2.5"/>
+            <path d="M118 56 L124 104" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+          </g>
+          <g id="L-shoes" class="layer">
+            <path class="o" d="M96 484 H148 V500 Q148 506 142 506 H90 Q90 494 96 484 Z" fill="#2b2b2b"/>
+            <path class="o" d="M152 484 H204 Q210 494 210 506 H158 Q152 506 152 500 Z" fill="#2b2b2b"/>
+            <rect x="88" y="503" width="62" height="7" rx="3" fill="#e0782a" stroke="#1b2638" stroke-width="1.5"/>
+            <rect x="150" y="503" width="62" height="7" rx="3" fill="#e0782a" stroke="#1b2638" stroke-width="1.5"/>
+            <path d="M92 510 v3 M100 510 v3 M108 510 v3 M116 510 v3 M124 510 v3 M132 510 v3 M140 510 v3 M160 510 v3 M168 510 v3 M176 510 v3 M184 510 v3 M192 510 v3 M200 510 v3 M208 510 v3" stroke="#1b2638" stroke-width="2"/>
+            <path d="M98 490 H112 M188 490 H202" stroke="#777" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g id="L-harness" class="layer">
+            <path d="M150 104 Q214 98 236 40" fill="none" stroke="#1b2638" stroke-width="6"/>
+            <path d="M150 104 Q214 98 236 40" fill="none" stroke="#f5c400" stroke-width="3.5"/>
+            <rect x="196" y="78" width="16" height="22" rx="3" fill="#2b2b2b" stroke="#1b2638" stroke-width="1.5" transform="rotate(-28 204 89)"/>
+            <path d="M236 40 Q240 36 240 40" fill="none" stroke="#555" stroke-width="3"/>
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <g stroke="#1b2638" stroke-width="12">
+                <path d="M130 114 L122 250 Q150 286 178 250 L170 114"/><path d="M122 176 H178"/>
+                <path d="M122 250 L116 298 M178 250 L184 298"/><path d="M106 300 H147 M153 300 H194"/>
+              </g>
+              <g stroke="#ff7a1a" stroke-width="8">
+                <path d="M130 114 L122 250 Q150 286 178 250 L170 114"/><path d="M122 176 H178"/>
+                <path d="M122 250 L116 298 M178 250 L184 298"/><path d="M106 300 H147 M153 300 H194"/>
+              </g>
+            </g>
+            <rect x="142" y="169" width="16" height="14" rx="2" fill="#c9c9c9" stroke="#1b2638" stroke-width="1.5"/>
+            <circle cx="150" cy="108" r="7" fill="none" stroke="#9aa1a8" stroke-width="3.5"/>
+            <rect x="114" y="294" width="10" height="12" rx="2" fill="#c9c9c9" stroke="#1b2638" stroke-width="1.2"/>
+            <rect x="176" y="294" width="10" height="12" rx="2" fill="#c9c9c9" stroke="#1b2638" stroke-width="1.2"/>
+          </g>
+          <g id="L-helmet" class="layer">
+            <path d="M121 66 L128 98 Q150 110 172 98 L179 66" fill="none" stroke="#1b2638" stroke-width="3.5"/>
+            <rect x="146" y="102" width="8" height="6" rx="1.5" fill="#333"/>
+            <path class="o" d="M114 64 Q114 24 150 22 Q186 24 186 64 Z" fill="#f5c400"/>
+            <rect class="o" x="104" y="58" width="92" height="10" rx="5" fill="#f5c400"/>
+            <path d="M150 23 V58" stroke="#d1a700" stroke-width="5"/>
+            <path d="M126 40 Q132 30 142 28" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+          </g>
+          <g id="L-safeshoes" class="layer">
+            <path class="o" d="M96 484 H148 V502 Q148 508 142 508 H88 Q88 494 96 484 Z" fill="#5a3a22"/>
+            <path class="o" d="M152 484 H204 Q212 494 212 508 H158 Q152 508 152 502 Z" fill="#5a3a22"/>
+            <path d="M89 496 Q92 486 104 486 V506 H89 Z" fill="#9aa1a8" stroke="#1b2638" stroke-width="1.5"/>
+            <path d="M211 496 Q208 486 196 486 V506 H211 Z" fill="#9aa1a8" stroke="#1b2638" stroke-width="1.5"/>
+            <rect x="86" y="505" width="64" height="6" rx="2" fill="#1a1a1a"/><rect x="150" y="505" width="64" height="6" rx="2" fill="#1a1a1a"/>
+            <path d="M118 490 H140 M160 490 H182" stroke="#e8d4b8" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
+          <g id="L-earmuff" class="layer">
+            <path d="M114 70 Q112 26 150 26 Q188 26 186 70" fill="none" stroke="#1b2638" stroke-width="9" stroke-linecap="round"/>
+            <path d="M114 70 Q112 26 150 26 Q188 26 186 70" fill="none" stroke="#d7262b" stroke-width="5" stroke-linecap="round"/>
+            <rect class="o" x="104" y="54" width="20" height="34" rx="9" fill="#d7262b"/>
+            <rect class="o" x="176" y="54" width="20" height="34" rx="9" fill="#d7262b"/>
+            <rect x="120" y="58" width="6" height="26" rx="3" fill="#2b2b2b"/><rect x="174" y="58" width="6" height="26" rx="3" fill="#2b2b2b"/>
+          </g>
+          <g id="L-firesuit" class="layer">
+            <rect class="o" x="97" y="282" width="53" height="214" rx="10" fill="#b8955a"/>
+            <rect class="o" x="150" y="282" width="53" height="214" rx="10" fill="#b8955a"/>
+            <rect class="o" x="64" y="116" width="40" height="182" rx="14" fill="#b8955a"/>
+            <rect class="o" x="196" y="116" width="40" height="182" rx="14" fill="#b8955a"/>
+            <rect class="o" x="90" y="104" width="120" height="208" rx="22" fill="#b8955a"/>
+            <path d="M118 104 L150 140 L182 104" fill="#9c7c46" stroke="#1b2638" stroke-width="2"/>
+            <rect x="146" y="140" width="8" height="168" fill="#8a6c3a"/>
+            <g fill="#f5e600" stroke="#1b2638" stroke-width="1"><rect x="90" y="196" width="120" height="14"/><rect x="90" y="280" width="120" height="14"/><rect x="64" y="200" width="40" height="14"/><rect x="196" y="200" width="40" height="14"/><rect x="97" y="420" width="53" height="14"/><rect x="150" y="420" width="53" height="14"/></g>
+            <g fill="#c9ced4"><rect x="90" y="201" width="120" height="4"/><rect x="90" y="285" width="120" height="4"/><rect x="64" y="205" width="40" height="4"/><rect x="196" y="205" width="40" height="4"/><rect x="97" y="425" width="53" height="4"/><rect x="150" y="425" width="53" height="4"/></g>
+            <rect x="104" y="226" width="30" height="22" rx="3" fill="#a5844e" stroke="#1b2638" stroke-width="1.5"/><rect x="166" y="226" width="30" height="22" rx="3" fill="#a5844e" stroke="#1b2638" stroke-width="1.5"/>
+          </g>
+          <g id="L-fireboots" class="layer">
+            <rect class="o" x="98" y="404" width="52" height="92" rx="8" fill="#1d1d1d"/>
+            <rect class="o" x="150" y="404" width="52" height="92" rx="8" fill="#1d1d1d"/>
+            <rect class="o" x="90" y="486" width="62" height="24" rx="10" fill="#1d1d1d"/>
+            <rect class="o" x="148" y="486" width="62" height="24" rx="10" fill="#1d1d1d"/>
+            <g fill="#f5e600"><rect x="98" y="430" width="52" height="8"/><rect x="150" y="430" width="52" height="8"/></g>
+            <g fill="#d7262b"><rect x="92" y="503" width="58" height="6"/><rect x="150" y="503" width="58" height="6"/></g>
+            <g stroke="#555" stroke-width="3" stroke-linecap="round"><path d="M104 412 H114 M186 412 H196"/></g>
+          </g>
+          <g id="L-firegloves" class="layer">
+            <rect class="o" x="62" y="250" width="44" height="50" rx="6" fill="#f5c400"/>
+            <rect class="o" x="194" y="250" width="44" height="50" rx="6" fill="#f5c400"/>
+            <circle class="o" cx="86" cy="314" r="19" fill="#3a2b20"/>
+            <circle class="o" cx="214" cy="314" r="19" fill="#3a2b20"/>
+            <rect class="o" x="66" y="290" width="40" height="16" rx="5" fill="#3a2b20"/>
+            <rect class="o" x="194" y="290" width="40" height="16" rx="5" fill="#3a2b20"/>
+            <path d="M62 266 H106 M194 266 H238" stroke="#c9ced4" stroke-width="4"/>
+          </g>
+          <g id="L-firehelmet" class="layer"><g transform="translate(0 -14)">
+            <path d="M100 66 Q150 74 200 66 L214 84 Q150 96 86 84 Z" fill="#b51d22" stroke="#1b2638" stroke-width="2"/>
+            <path class="o" d="M112 66 Q110 20 150 18 Q190 20 188 66 Z" fill="#d7262b"/>
+            <path d="M150 19 V64" stroke="#a51c20" stroke-width="6"/>
+            <path d="M126 24 Q118 40 118 64 M174 24 Q182 40 182 64" stroke="#a51c20" stroke-width="2" fill="none"/>
+            <path d="M136 30 H164 L162 52 Q150 60 138 52 Z" fill="#f2d46b" stroke="#7a5f00" stroke-width="2"/>
+            <text x="150" y="47" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="11" fill="#7a1414">F</text>
+            <path d="M118 40 Q124 28 134 24" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+          </g></g>
+          <g id="L-heatsleeves" class="layer">
+            <rect class="o" x="63" y="160" width="42" height="100" rx="12" fill="#cfd6dd"/>
+            <rect class="o" x="195" y="160" width="42" height="100" rx="12" fill="#cfd6dd"/>
+            <g stroke="#9aa4ae" stroke-width="2"><path d="M65 182 H103 M65 206 H103 M65 230 H103 M197 182 H235 M197 206 H235 M197 230 H235"/></g>
+            <path d="M72 168 L76 250 M204 168 L208 250" stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+          </g>
+          <g id="L-heatapron" class="layer">
+            <path d="M126 104 Q150 96 174 104" fill="none" stroke="#6b5a4c" stroke-width="5"/>
+            <path class="o" d="M120 108 H180 L186 170 Q206 176 208 196 L204 430 Q150 444 96 430 L92 196 Q94 176 114 170 Z" fill="#cfd6dd"/>
+            <path d="M92 200 H208" stroke="#6b5a4c" stroke-width="5"/>
+            <g stroke="#9aa4ae" stroke-width="1.5" opacity=".9"><path d="M110 230 L104 420 M150 214 V436 M190 230 L196 420"/></g>
+            <path d="M126 116 L118 190 M112 230 L108 400" stroke="#fff" stroke-width="4" opacity=".55" stroke-linecap="round"/>
+          </g>
+          <g id="L-heatgloves" class="layer">
+            <path class="o" d="M60 238 H112 L108 296 H66 Z" fill="#a8742e"/>
+            <path class="o" d="M188 238 H240 L234 296 H192 Z" fill="#a8742e"/>
+            <circle class="o" cx="87" cy="312" r="20" fill="#8a5a20"/>
+            <circle class="o" cx="213" cy="312" r="20" fill="#8a5a20"/>
+            <g stroke="#5c3a10" stroke-width="1.5" stroke-dasharray="3 3"><path d="M62 252 H110 M190 252 H238"/></g>
+          </g>
+          <g id="L-heathelmet" class="layer">
+            <path class="o" d="M114 64 Q114 22 150 20 Q186 22 186 64 Z" fill="#c9ced4"/>
+            <rect class="o" x="102" y="58" width="96" height="11" rx="5" fill="#c9ced4"/>
+            <path d="M150 21 V58" stroke="#9aa4ae" stroke-width="5"/>
+            <path d="M126 40 Q132 28 142 26" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+            <path d="M116 69 H184 V82 Q150 90 116 82 Z" fill="#3a8a6a" fill-opacity=".35" stroke="#1b2638" stroke-width="1.5"/>
+          </g>
+          <g id="L-weldapron" class="layer">
+            <path d="M124 104 L108 150 M176 104 L192 150" stroke="#5a3a1c" stroke-width="7" stroke-linecap="round"/>
+            <path class="o" d="M118 140 H182 L186 196 Q206 200 206 214 L202 430 Q150 442 98 430 L94 214 Q94 200 114 196 Z" fill="#a0683a"/>
+            <path d="M94 214 H206" stroke="#5a3a1c" stroke-width="4"/>
+            <g stroke="#6e4422" stroke-width="1.5" stroke-dasharray="4 3" fill="none"><path d="M122 148 H178 L181 196 M118 148 L115 196 M102 222 L100 422 M198 222 L200 422"/></g>
+            <g fill="#c9ced4" stroke="#333" stroke-width="1"><circle cx="122" cy="146" r="3.5"/><circle cx="178" cy="146" r="3.5"/></g>
+          </g>
+          <g id="L-weldgloves" class="layer">
+            <path class="o" d="M58 232 H114 L108 296 H66 Z" fill="#d9b98a"/>
+            <path class="o" d="M186 232 H242 L234 296 H192 Z" fill="#d9b98a"/>
+            <circle class="o" cx="87" cy="312" r="20" fill="#c9a26b"/>
+            <circle class="o" cx="213" cy="312" r="20" fill="#c9a26b"/>
+            <g stroke="#8a6a3a" stroke-width="1.5" stroke-dasharray="3 3"><path d="M60 246 H112 M188 246 H240"/></g>
+            <path d="M58 232 H114 M186 232 H242" stroke="#2a64c3" stroke-width="4"/>
+          </g>
+          <g id="L-weldmask" class="layer">
+            <path d="M110 64 Q110 44 150 42 Q190 44 190 64" fill="none" stroke="#1b2638" stroke-width="5"/>
+            <path class="o" d="M112 52 Q150 34 188 52 L192 96 Q186 118 150 124 Q114 118 108 96 Z" fill="#2b2f36"/>
+            <rect x="128" y="66" width="44" height="20" rx="3" fill="#1d5a3a" stroke="#0f1a14" stroke-width="2"/>
+            <path d="M134 70 L140 80" stroke="#7fd1a8" stroke-width="2" opacity=".6"/>
+            <circle cx="111" cy="70" r="5" fill="#555" stroke="#1b2638" stroke-width="1.5"/><circle cx="189" cy="70" r="5" fill="#555" stroke="#1b2638" stroke-width="1.5"/>
+            <path d="M140 108 H160" stroke="#444" stroke-width="3"/>
+          </g>
+          <g id="L-arcsuit" class="layer">
+            <rect class="o" x="97" y="282" width="53" height="214" rx="10" fill="#1f4e8c"/>
+            <rect class="o" x="150" y="282" width="53" height="214" rx="10" fill="#1f4e8c"/>
+            <rect class="o" x="64" y="116" width="40" height="182" rx="14" fill="#1f4e8c"/>
+            <rect class="o" x="196" y="116" width="40" height="182" rx="14" fill="#1f4e8c"/>
+            <rect class="o" x="90" y="104" width="120" height="208" rx="22" fill="#1f4e8c"/>
+            <path d="M120 104 L150 132 L180 104" fill="#173d6e" stroke="#1b2638" stroke-width="2"/>
+            <rect x="146" y="132" width="8" height="176" fill="#173d6e"/>
+            <g fill="#c9ced4"><rect x="90" y="250" width="120" height="8"/><rect x="64" y="252" width="40" height="8"/><rect x="196" y="252" width="40" height="8"/><rect x="97" y="440" width="53" height="8"/><rect x="150" y="440" width="53" height="8"/></g>
+            <rect x="160" y="146" width="40" height="22" rx="2" fill="#fff" stroke="#1b2638" stroke-width="1.5"/>
+            <text x="180" y="161" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="9" fill="#d7262b">ARC 8</text>
+          </g>
+          <g id="L-eshoes" class="layer">
+            <path class="o" d="M96 484 H148 V502 Q148 508 142 508 H88 Q88 494 96 484 Z" fill="#2b2b2b"/>
+            <path class="o" d="M152 484 H204 Q212 494 212 508 H158 Q152 508 152 502 Z" fill="#2b2b2b"/>
+            <rect x="86" y="505" width="64" height="7" rx="2" fill="#f5c400" stroke="#1b2638" stroke-width="1.2"/>
+            <rect x="150" y="505" width="64" height="7" rx="2" fill="#f5c400" stroke="#1b2638" stroke-width="1.2"/>
+            <path d="M112 488 L106 498 H112 L108 506 L118 494 H112 Z M188 488 L182 498 H188 L184 506 L194 494 H188 Z" fill="#f5c400"/>
+          </g>
+          <g id="L-egloves" class="layer">
+            <path class="o" d="M58 228 H114 L108 296 H66 Z" fill="#d7262b"/>
+            <path class="o" d="M186 228 H242 L234 296 H192 Z" fill="#d7262b"/>
+            <path class="o" d="M64 272 H110 L108 300 H66 Z" fill="#c9a26b"/>
+            <path class="o" d="M190 272 H236 L234 300 H192 Z" fill="#c9a26b"/>
+            <circle class="o" cx="87" cy="314" r="20" fill="#c9a26b"/>
+            <circle class="o" cx="213" cy="314" r="20" fill="#c9a26b"/>
+          </g>
+          <g id="hl"></g>
+        </svg>
+        </div>
+        <div class="ring ring-r" id="ringR"></div>
+        <div class="ring ring-b" id="ringB"></div>
+      </div>
+      <p class="tip" id="tip"></p>
+    </section>
+
+    <section class="feedback" id="feedback" aria-live="polite"></section>
+  </div>
+
+  <section class="ref" aria-labelledby="refh">
+    <h2 id="refh"></h2>
+    <p class="sub" id="refsub"></p>
+    <div class="cards" id="cards"></div>
+    <div class="notes" id="notes">
+    </div>
+  </section>
+</div>
+
+<script>
+const ICON={
+ suit:'<path d="M22 4 H42 Q48 4 48 12 L56 16 L60 38 L51 40 L47 26 V58 H35 L32 38 L29 58 H17 V26 L13 40 L4 38 L8 16 L16 12 Q16 4 22 4 Z" fill="#d4dc2c" stroke="#4b4f00" stroke-width="2" stroke-linejoin="round"/><ellipse cx="32" cy="11" rx="7" ry="6" fill="#e7b088" stroke="#4b4f00" stroke-width="1.5"/><path d="M32 18 V44" stroke="#4b4f00" stroke-width="2"/>',
+ gloves:'<path d="M20 58 V40 L12 28 Q10 24 14 22 L22 30 V12 Q22 8 26 8 Q29 8 29 12 V26 V8 Q29 5 32.5 5 Q36 5 36 8 V26 V10 Q36 7 39.5 7 Q43 7 43 10 V28 V16 Q43 13 46 13 Q49 13 49 16 V40 Q49 50 44 58 Z" fill="#2e9e5b" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/><rect x="16" y="48" width="32" height="12" rx="2" fill="#2e9e5b" stroke="#14532d" stroke-width="2"/>',
+ goggles:'<rect x="4" y="28" width="56" height="5" rx="2" fill="#2d6a4f"/><rect x="10" y="20" width="44" height="22" rx="10" fill="#cdeee0" stroke="#2d6a4f" stroke-width="3"/><circle cx="14" cy="31" r="2.5" fill="#2d6a4f"/><circle cx="50" cy="31" r="2.5" fill="#2d6a4f"/>',
+ shield:'<rect x="8" y="6" width="48" height="8" rx="4" fill="#3b4a5a"/><path d="M10 14 H54 L57 52 Q32 60 7 52 Z" fill="#dff3ff" stroke="#4f8db3" stroke-width="2.5"/><path d="M16 20 L20 46" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+ resp:'<path d="M18 22 Q32 14 46 22 L49 42 Q32 56 15 42 Z" fill="#4a4f58" stroke="#1b1f27" stroke-width="2"/><circle cx="12" cy="42" r="9" fill="#c9b23a" stroke="#1b1f27" stroke-width="2"/><circle cx="52" cy="42" r="9" fill="#c9b23a" stroke="#1b1f27" stroke-width="2"/><circle cx="32" cy="42" r="4" fill="#1b1f27"/>',
+ boots:'<path d="M14 4 H34 V38 L52 44 Q58 46 58 52 V56 H10 V40 Z" fill="#2f7d3a" stroke="#14421d" stroke-width="2" stroke-linejoin="round"/><rect x="14" y="4" width="20" height="6" fill="#256630"/><rect x="8" y="54" width="52" height="6" rx="2" fill="#1a1a1a"/>',
+ mask:'<path d="M14 22 Q32 18 50 22 V42 Q32 48 14 42 Z" fill="#9fd3ec" stroke="#3c7f9e" stroke-width="2"/><path d="M14 28 H50 M14 34 H50" stroke="#3c7f9e" stroke-width="1.2"/><path d="M14 24 Q4 30 14 40 M50 24 Q60 30 50 40" fill="none" stroke="#eee" stroke-width="2.5"/>',
+ fabricgloves:'<path d="M20 58 V40 L12 28 Q10 24 14 22 L22 30 V12 Q22 8 26 8 Q29 8 29 12 V26 V8 Q29 5 32.5 5 Q36 5 36 8 V26 V10 Q36 7 39.5 7 Q43 7 43 10 V28 V16 Q43 13 46 13 Q49 13 49 16 V40 Q49 50 44 58 Z" fill="#f1ede2" stroke="#8a826b" stroke-width="2" stroke-linejoin="round"/><g fill="#c33"><circle cx="26" cy="36" r="1.5"/><circle cx="32" cy="40" r="1.5"/><circle cx="38" cy="36" r="1.5"/><circle cx="32" cy="32" r="1.5"/></g>',
+ raincoat:'<path d="M22 4 H42 L52 14 L58 40 L50 42 L46 28 L48 58 H16 L18 28 L14 42 L6 40 L12 14 Z" fill="#3a8fd8" stroke="#1d4f7a" stroke-width="2" stroke-linejoin="round"/><path d="M32 6 V56" stroke="#1d4f7a" stroke-width="1.5"/><g fill="#fff"><circle cx="35" cy="20" r="1.6"/><circle cx="35" cy="32" r="1.6"/><circle cx="35" cy="44" r="1.6"/></g>',
+ sneakers:'<path d="M6 34 Q10 24 20 26 L34 30 Q44 22 52 30 Q60 34 58 44 H6 Z" fill="#f4f4f4" stroke="#555" stroke-width="2" stroke-linejoin="round"/><rect x="4" y="44" width="56" height="7" rx="3" fill="#c84b3a" stroke="#555" stroke-width="2"/><path d="M24 30 L30 26 M28 32 L34 28 M32 34 L38 30" stroke="#555" stroke-width="1.6"/>',
+ glasses:'<path d="M4 24 H60" stroke="#333" stroke-width="3"/><rect x="8" y="22" width="20" height="14" rx="5" fill="#e6f4fb" stroke="#333" stroke-width="2.5"/><rect x="36" y="22" width="20" height="14" rx="5" fill="#e6f4fb" stroke="#333" stroke-width="2.5"/>'
+};
+
+Object.assign(ICON,{
+ helmet:'<path d="M14 36 Q14 10 32 9 Q50 10 50 36 Z" fill="#f5c400" stroke="#7a5f00" stroke-width="2"/><rect x="6" y="34" width="52" height="8" rx="4" fill="#f5c400" stroke="#7a5f00" stroke-width="2"/><path d="M32 10 V34" stroke="#d1a700" stroke-width="4"/><path d="M16 42 L22 56 Q32 62 42 56 L48 42" fill="none" stroke="#333" stroke-width="2.5"/><rect x="29" y="56" width="6" height="5" rx="1" fill="#333"/>',
+ harness:'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#7a3300" stroke-width="7"><path d="M22 6 L18 40 Q32 54 46 40 L42 6"/><path d="M18 22 H46"/><path d="M18 40 L12 58 M46 40 L52 58"/></g><g stroke="#ff7a1a" stroke-width="4.5"><path d="M22 6 L18 40 Q32 54 46 40 L42 6"/><path d="M18 22 H46"/><path d="M18 40 L12 58 M46 40 L52 58"/></g></g><circle cx="32" cy="6" r="5" fill="none" stroke="#777" stroke-width="3"/><rect x="27" y="18" width="10" height="8" rx="1.5" fill="#c9c9c9" stroke="#333" stroke-width="1.2"/>',
+ shoes:'<path d="M8 22 H30 V36 L50 40 Q58 42 58 50 H6 Q6 34 8 22 Z" fill="#2b2b2b" stroke="#111" stroke-width="2" stroke-linejoin="round"/><path d="M44 40 Q54 42 56 48" stroke="#888" stroke-width="3" fill="none"/><rect x="4" y="48" width="56" height="8" rx="3" fill="#e0782a" stroke="#111" stroke-width="2"/><path d="M10 56 v4 M18 56 v4 M26 56 v4 M34 56 v4 M42 56 v4 M50 56 v4" stroke="#111" stroke-width="2.5"/>',
+ nostrap:'<path d="M14 40 Q14 14 32 13 Q50 14 50 40 Z" fill="#f4f4f4" stroke="#666" stroke-width="2"/><rect x="6" y="38" width="52" height="8" rx="4" fill="#f4f4f4" stroke="#666" stroke-width="2"/><path d="M32 14 V38" stroke="#ccc" stroke-width="4"/>',
+ cap:'<path d="M14 38 Q14 14 34 14 Q50 14 50 38 Z" fill="#2a64c3" stroke="#163a75" stroke-width="2"/><path d="M14 38 H50 Q60 38 62 46 H14 Z" fill="#2a64c3" stroke="#163a75" stroke-width="2"/><circle cx="33" cy="14" r="2.5" fill="#163a75"/>',
+ bikehelmet:'<path d="M6 42 Q8 14 36 12 Q58 14 60 36 Q48 44 6 42 Z" fill="#2ec4b6" stroke="#145e57" stroke-width="2"/><g fill="#145e57"><path d="M18 22 L26 18 L24 32 Z"/><path d="M32 16 L40 16 L36 32 Z"/><path d="M46 20 L52 26 L44 32 Z"/></g><path d="M14 42 L20 56 M54 38 L46 56" stroke="#333" stroke-width="2"/>',
+ belt:'<rect x="4" y="26" width="56" height="12" rx="3" fill="#7a4a2a" stroke="#3e2412" stroke-width="2"/><rect x="24" y="22" width="16" height="20" rx="2" fill="none" stroke="#c9c9c9" stroke-width="3"/><path d="M32 26 V38" stroke="#c9c9c9" stroke-width="2.5"/><circle cx="50" cy="32" r="1.6" fill="#3e2412"/><circle cx="56" cy="32" r="1.6" fill="#3e2412"/>',
+ backbelt:'<path d="M14 6 L22 24 M50 6 L42 24" stroke="#333" stroke-width="4" stroke-linecap="round"/><rect x="4" y="22" width="56" height="24" rx="6" fill="#222" stroke="#000" stroke-width="2"/><rect x="24" y="22" width="16" height="24" fill="#555"/><path d="M8 30 H22 M8 38 H22 M42 30 H56 M42 38 H56" stroke="#ff7a1a" stroke-width="2"/>',
+ sandals:'<ellipse cx="22" cy="34" rx="12" ry="24" fill="#3a8fd8" stroke="#1d4f7a" stroke-width="2"/><ellipse cx="44" cy="34" rx="12" ry="24" fill="#3a8fd8" stroke="#1d4f7a" stroke-width="2"/><path d="M22 18 L13 32 M22 18 L31 32 M44 18 L35 32 M44 18 L53 32" stroke="#f5c400" stroke-width="3" stroke-linecap="round"/>',
+ dressshoes:'<path d="M6 30 Q10 22 22 24 L34 28 Q46 26 54 34 Q60 38 58 46 H6 Z" fill="#7a4a2a" stroke="#3e2412" stroke-width="2" stroke-linejoin="round"/><rect x="4" y="46" width="56" height="4" rx="2" fill="#3e2412"/><path d="M24 28 L32 26 M26 32 L34 30" stroke="#e8d4b8" stroke-width="1.6"/><path d="M40 32 Q48 32 52 38" stroke="#a37350" stroke-width="2" fill="none"/>'
+});
+
+Object.assign(ICON,{
+ earmuff:'<path d="M14 40 Q12 8 32 8 Q52 8 50 40" fill="none" stroke="#7a1414" stroke-width="5" stroke-linecap="round"/><rect x="4" y="30" width="18" height="28" rx="8" fill="#d7262b" stroke="#7a1414" stroke-width="2"/><rect x="42" y="30" width="18" height="28" rx="8" fill="#d7262b" stroke="#7a1414" stroke-width="2"/><path d="M38 14 Q46 10 50 4" stroke="#f5c400" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="52" cy="4" r="3" fill="#f5c400"/>',
+ safeshoes:'<path d="M8 20 H30 V36 L50 40 Q58 42 58 50 H6 Q6 32 8 20 Z" fill="#5a3a22" stroke="#2a1a0e" stroke-width="2" stroke-linejoin="round"/><path d="M42 39 Q55 41 57 49 H42 Z" fill="#9aa1a8" stroke="#2a1a0e" stroke-width="1.5"/><rect x="4" y="48" width="56" height="8" rx="3" fill="#1a1a1a"/><path d="M12 26 H26 M12 32 H26" stroke="#e8d4b8" stroke-width="2"/>',
+ headphones:'<path d="M12 40 Q10 8 32 8 Q54 8 52 40" fill="none" stroke="#222" stroke-width="5" stroke-linecap="round"/><ellipse cx="12" cy="44" rx="9" ry="12" fill="#e85d8a" stroke="#222" stroke-width="2"/><ellipse cx="52" cy="44" rx="9" ry="12" fill="#e85d8a" stroke="#222" stroke-width="2"/><path d="M26 30 l3 -6 l3 6 M36 26 v10 a3 3 0 1 1 -2 -3" stroke="#e85d8a" stroke-width="2" fill="none"/>',
+ earbuds:'<circle cx="20" cy="22" r="10" fill="#f4f4f4" stroke="#555" stroke-width="2"/><rect x="16" y="28" width="8" height="26" rx="4" fill="#f4f4f4" stroke="#555" stroke-width="2"/><circle cx="44" cy="22" r="10" fill="#f4f4f4" stroke="#555" stroke-width="2"/><rect x="40" y="28" width="8" height="26" rx="4" fill="#f4f4f4" stroke="#555" stroke-width="2"/><circle cx="20" cy="22" r="4" fill="#999"/><circle cx="44" cy="22" r="4" fill="#999"/>',
+ cotton:'<g fill="#fff" stroke="#bbb" stroke-width="2"><circle cx="20" cy="36" r="12"/><circle cx="32" cy="28" r="13"/><circle cx="44" cy="38" r="12"/><circle cx="30" cy="44" r="11"/></g><path d="M24 34 Q28 30 32 34" stroke="#ddd" stroke-width="2" fill="none"/>',
+ beanie:'<path d="M10 44 Q10 12 32 12 Q54 12 54 44 Z" fill="#5b8c3a" stroke="#2f4d1c" stroke-width="2"/><rect x="8" y="40" width="48" height="12" rx="4" fill="#4a7530" stroke="#2f4d1c" stroke-width="2"/><circle cx="32" cy="9" r="6" fill="#e9e3c8" stroke="#2f4d1c" stroke-width="1.5"/><path d="M16 42 V52 M24 42 V52 M32 42 V52 M40 42 V52 M48 42 V52" stroke="#2f4d1c" stroke-width="1"/>',
+ rainboots:'<path d="M14 4 H34 V38 L52 44 Q58 46 58 52 V56 H10 V40 Z" fill="#f5c400" stroke="#7a5f00" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="54" width="52" height="6" rx="2" fill="#7a5f00"/><circle cx="24" cy="16" r="3" fill="#fff" opacity=".6"/><circle cx="28" cy="26" r="2" fill="#fff" opacity=".6"/>'
+});
+
+Object.assign(ICON,{
+ firesuit:'<path d="M20 4 H44 L54 12 L60 40 L50 42 L46 26 V58 H34 L32 40 L30 58 H18 V26 L14 42 L4 40 L10 12 Z" fill="#b8955a" stroke="#5c4420" stroke-width="2" stroke-linejoin="round"/><g fill="#f5e600" stroke="#5c4420" stroke-width="1"><rect x="18" y="28" width="28" height="5"/><rect x="7" y="30" width="8" height="5" transform="rotate(-12 11 32)"/><rect x="49" y="30" width="8" height="5" transform="rotate(12 53 32)"/><rect x="18" y="48" width="12" height="4"/><rect x="34" y="48" width="12" height="4"/></g><path d="M32 6 V44" stroke="#5c4420" stroke-width="1.5"/>',
+ firehelmet:'<path d="M4 40 Q32 46 60 40 L58 50 Q32 58 6 50 Z" fill="#b51d22" stroke="#5a0f0f" stroke-width="2"/><path d="M12 42 Q10 8 32 8 Q54 8 52 42 Z" fill="#d7262b" stroke="#5a0f0f" stroke-width="2"/><path d="M32 9 V40" stroke="#a51c20" stroke-width="4"/><path d="M24 16 H40 L39 30 Q32 35 25 30 Z" fill="#f2d46b" stroke="#7a5f00" stroke-width="1.5"/>',
+ firegloves:'<rect x="14" y="44" width="34" height="16" rx="3" fill="#f5c400" stroke="#5c4420" stroke-width="2"/><path d="M18 46 V30 L10 22 Q8 18 12 16 L20 22 V10 Q20 6 25 6 Q30 6 30 10 V22 V8 Q30 4 35 4 Q40 4 40 8 V24 V12 Q40 8 45 8 Q48 8 48 12 V46 Z" fill="#3a2b20" stroke="#1a120c" stroke-width="2" stroke-linejoin="round"/><path d="M14 50 H48" stroke="#c9ced4" stroke-width="3"/>',
+ fireboots:'<path d="M14 4 H34 V38 L52 44 Q58 46 58 52 V56 H10 V40 Z" fill="#1d1d1d" stroke="#000" stroke-width="2" stroke-linejoin="round"/><rect x="14" y="20" width="20" height="5" fill="#f5e600"/><rect x="8" y="54" width="52" height="6" rx="2" fill="#d7262b"/><path d="M18 8 H26" stroke="#666" stroke-width="3" stroke-linecap="round"/>',
+ vest:'<path d="M20 4 L28 14 H36 L44 4 L54 12 V58 H38 V30 H26 V58 H10 V12 Z" fill="#c8f000" stroke="#4a5a00" stroke-width="2" stroke-linejoin="round"/><g fill="#c9ced4"><rect x="10" y="36" width="16" height="5"/><rect x="38" y="36" width="16" height="5"/><rect x="10" y="48" width="16" height="5"/><rect x="38" y="48" width="16" height="5"/></g>'
+});
+
+Object.assign(ICON,{
+ heatapron:'<path d="M24 4 H40 L42 18 Q54 20 54 30 L52 60 H12 L10 30 Q10 20 22 18 Z" fill="#cfd6dd" stroke="#555d66" stroke-width="2" stroke-linejoin="round"/><path d="M8 28 H56" stroke="#6b5a4c" stroke-width="3"/><path d="M20 22 L16 56" stroke="#fff" stroke-width="3" opacity=".7" stroke-linecap="round"/>',
+ heatgloves:'<path d="M12 60 L16 34 H48 L52 60 Z" fill="#a8742e" stroke="#5c3a10" stroke-width="2"/><path d="M18 36 V24 L10 16 Q8 12 12 10 L20 16 V8 Q20 4 25 4 Q32 4 32 8 V14 Q36 6 42 8 Q46 10 46 16 V36 Z" fill="#8a5a20" stroke="#5c3a10" stroke-width="2" stroke-linejoin="round"/><path d="M16 46 H50" stroke="#5c3a10" stroke-width="1.5" stroke-dasharray="3 3"/>',
+ heathelmet:'<path d="M14 38 Q14 10 32 9 Q50 10 50 38 Z" fill="#c9ced4" stroke="#555d66" stroke-width="2"/><rect x="6" y="36" width="52" height="8" rx="4" fill="#c9ced4" stroke="#555d66" stroke-width="2"/><path d="M32 10 V36" stroke="#9aa4ae" stroke-width="4"/><path d="M10 44 H54 V54 Q32 60 10 54 Z" fill="#3a8a6a" fill-opacity=".45" stroke="#555d66" stroke-width="1.5"/>',
+ heatsleeves:'<rect x="6" y="10" width="20" height="48" rx="8" fill="#cfd6dd" stroke="#555d66" stroke-width="2"/><rect x="38" y="10" width="20" height="48" rx="8" fill="#cfd6dd" stroke="#555d66" stroke-width="2"/><path d="M8 22 H24 M8 34 H24 M8 46 H24 M40 22 H56 M40 34 H56 M40 46 H56" stroke="#9aa4ae" stroke-width="1.5"/>',
+ plasticapron:'<path d="M24 4 H40 L42 18 Q54 20 54 30 L52 60 H12 L10 30 Q10 20 22 18 Z" fill="#7cc6f0" fill-opacity=".8" stroke="#2d6f99" stroke-width="2" stroke-linejoin="round"/><path d="M8 28 H56" stroke="#2d6f99" stroke-width="2"/><path d="M20 24 L18 54" stroke="#fff" stroke-width="2" opacity=".8"/>',
+ sunsleeves:'<rect x="6" y="10" width="20" height="48" rx="8" fill="#f2a5c4" stroke="#a3305f" stroke-width="2"/><rect x="38" y="10" width="20" height="48" rx="8" fill="#f2a5c4" stroke="#a3305f" stroke-width="2"/><path d="M6 16 H26 M38 16 H58" stroke="#fff" stroke-width="3"/>'
+});
+
+Object.assign(ICON,{
+ weldmask:'<path d="M12 16 Q32 4 52 16 L56 44 Q50 60 32 62 Q14 60 8 44 Z" fill="#2b2f36" stroke="#111" stroke-width="2"/><rect x="18" y="24" width="28" height="14" rx="2" fill="#1d5a3a" stroke="#0f1a14" stroke-width="2"/><circle cx="9" cy="28" r="3.5" fill="#666"/><circle cx="55" cy="28" r="3.5" fill="#666"/><path d="M26 52 H38" stroke="#555" stroke-width="2.5"/>',
+ weldgloves:'<path d="M10 60 L16 32 H50 L54 60 Z" fill="#d9b98a" stroke="#8a6a3a" stroke-width="2"/><path d="M18 34 V22 L10 14 Q8 10 12 8 L20 14 V8 Q20 4 25 4 Q32 4 32 8 V14 Q36 6 42 8 Q46 10 46 16 V34 Z" fill="#c9a26b" stroke="#8a6a3a" stroke-width="2" stroke-linejoin="round"/><path d="M10 60 H54" stroke="#2a64c3" stroke-width="4"/><path d="M16 44 H52" stroke="#8a6a3a" stroke-width="1.5" stroke-dasharray="3 3"/>',
+ weldapron:'<path d="M20 4 L14 16 M44 4 L50 16" stroke="#5a3a1c" stroke-width="4" stroke-linecap="round"/><path d="M18 14 H46 L48 24 Q56 26 56 32 L54 60 H10 L8 32 Q8 26 16 24 Z" fill="#a0683a" stroke="#5a3a1c" stroke-width="2" stroke-linejoin="round"/><path d="M8 30 H56" stroke="#5a3a1c" stroke-width="2.5"/><g fill="#c9ced4"><circle cx="19" cy="16" r="2"/><circle cx="45" cy="16" r="2"/></g>',
+ sunglasses:'<path d="M4 24 H60" stroke="#222" stroke-width="3"/><path d="M8 24 H28 Q28 40 18 40 Q8 40 8 24 Z" fill="#222"/><path d="M36 24 H56 Q56 40 46 40 Q36 40 36 24 Z" fill="#222"/>'
+});
+
+Object.assign(ICON,{
+ arcsuit:'<path d="M20 4 H44 L54 12 L60 40 L50 42 L46 26 V58 H34 L32 40 L30 58 H18 V26 L14 42 L4 40 L10 12 Z" fill="#1f4e8c" stroke="#0f2a4d" stroke-width="2" stroke-linejoin="round"/><path d="M32 6 V44" stroke="#0f2a4d" stroke-width="1.5"/><rect x="34" y="14" width="12" height="7" fill="#fff"/><path d="M24 30 L20 38 H25 L22 46 L30 34 H25 Z" fill="#f5c400"/>',
+ egloves:'<path d="M12 60 L16 26 H50 L54 60 Z" fill="#d7262b" stroke="#6b0f12" stroke-width="2"/><path d="M18 30 V20 L10 12 Q8 8 12 6 L20 12 V6 Q20 2 25 2 Q32 2 32 6 V12 Q36 4 42 6 Q46 8 46 14 V30 Z" fill="#c9a26b" stroke="#6e5028" stroke-width="2" stroke-linejoin="round"/><rect x="16" y="28" width="32" height="8" fill="#c9a26b" stroke="#6e5028" stroke-width="1.5"/><path d="M28 42 L24 50 H29 L26 58 L34 46 H29 Z" fill="#f5c400"/>',
+ eshoes:'<path d="M8 20 H30 V36 L50 40 Q58 42 58 50 H6 Q6 32 8 20 Z" fill="#2b2b2b" stroke="#111" stroke-width="2" stroke-linejoin="round"/><rect x="4" y="48" width="56" height="8" rx="3" fill="#f5c400" stroke="#111" stroke-width="2"/><path d="M20 24 L15 34 H20 L17 44 L26 30 H21 Z" fill="#f5c400"/>'
+});
+Object.assign(ICON,{
+ ovenmitt:'<path d="M14 58 V30 Q14 8 32 8 Q48 8 48 26 V58 Z" fill="#f28c38" stroke="#8a4410" stroke-width="2"/><path d="M14 34 Q4 30 6 20 Q8 12 16 18" fill="#f28c38" stroke="#8a4410" stroke-width="2"/><rect x="12" y="50" width="38" height="10" rx="3" fill="#fff4e6" stroke="#8a4410" stroke-width="2"/><g fill="#fff4e6"><circle cx="26" cy="24" r="2.5"/><circle cx="38" cy="30" r="2.5"/><circle cx="28" cy="38" r="2.5"/></g>',
+ dishglove:'<path d="M20 58 V40 L12 28 Q10 24 14 22 L22 30 V12 Q22 8 26 8 Q29 8 29 12 V26 V8 Q29 5 32.5 5 Q36 5 36 8 V26 V10 Q36 7 39.5 7 Q43 7 43 10 V28 V16 Q43 13 46 13 Q49 13 49 16 V40 Q49 50 44 58 Z" fill="#ff9ec4" stroke="#a3305f" stroke-width="2" stroke-linejoin="round"/><path d="M18 50 Q32 46 46 50" stroke="#a3305f" stroke-width="2" fill="none"/><circle cx="28" cy="38" r="2" fill="#fff" opacity=".7"/>',
+ dotgloves:'<path d="M20 58 V40 L12 28 Q10 24 14 22 L22 30 V12 Q22 8 26 8 Q29 8 29 12 V26 V8 Q29 5 32.5 5 Q36 5 36 8 V26 V10 Q36 7 39.5 7 Q43 7 43 10 V28 V16 Q43 13 46 13 Q49 13 49 16 V40 Q49 50 44 58 Z" fill="#e6e6e6" stroke="#666" stroke-width="2" stroke-linejoin="round"/><path d="M22 30 V12 Q22 8 26 8 Q29 8 29 12 V26 V8 Q29 5 32.5 5 Q36 5 36 8 V26 V10 Q36 7 39.5 7 Q43 7 43 10 V28 V16 Q43 13 46 13 Q49 13 49 16 V36 H22 Z" fill="#2a64c3" stroke="#163a75" stroke-width="1.5"/><rect x="18" y="50" width="28" height="8" fill="#2a64c3"/>'
+});
+const SCEN={
+ chem:{name:'งานเก็บกู้สารเคมี',scene:'scene-chem',bg:'#59636f',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่กันสารเคมีไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: สวมชุดป้องกันสารเคมีก่อนถุงมือ และสวมแว่นครอบตาก่อนกระบังหน้า',
+  story:'ถังสารเคมีในโกดังล้มและรั่วไหล พนักงานคนนี้ต้องเข้าไปเก็บกู้',
+  head:'แต่งตัวให้พนักงานก่อนเข้าเก็บกู้สารเคมี',
+  done:'ครบชุดแล้ว ให้คู่ทำงานตรวจการสวม แล้วเข้าพื้นที่เก็บกู้ได้',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย ในงานเก็บกู้สารเคมีรั่วไหล ต้องเลือกระดับและวัสดุให้ตรงกับสารที่รั่ว โดยดูจากเอกสารข้อมูลความปลอดภัย (SDS) ป้ายวงกลมสีฟ้าคือป้ายบังคับตามมาตรฐาน ISO 7010 ที่บอกว่าพื้นที่นั้นต้องสวมอะไร',
+  notes:`<div class="note">
+        <h3>ลำดับการสวมที่แนะนำ</h3>
+        <ol>
+          <li>ชุดป้องกันสารเคมี ดึงขากางเกงคลุมทับรองเท้าบูท</li>
+          <li>รองเท้าบูทกันสารเคมี</li>
+          <li>หน้ากากกรองอากาศ  แล้วทดสอบความแนบสนิท (seal check)</li>
+          <li>แว่นครอบตากันสารเคมี แล้วดึงฮู้ดคลุมศีรษะ</li>
+          <li>กระบังหน้า สวมทับแว่นครอบตา</li>
+          <li>ถุงมือกันสารเคมี สวมเป็นลำดับสุดท้าย ให้ปลายแขนเสื้อคลุมทับหรือพันเทปที่รอยต่อ</li>
+        </ol>
+      </div>
+      <div class="note">
+        <h3>ก่อนเข้าพื้นที่สารเคมีรั่ว</h3>
+        <ol>
+          <li>ระบุสารจากฉลากหรือ SDS เพื่อเลือกวัสดุถุงมือ ชุด และชนิดไส้กรองให้ถูกต้อง</li>
+          <li>ถ้าไม่ทราบชนิดสาร ความเข้มข้นสูง หรือออกซิเจนไม่พอ ต้องใช้ หน้ากากกรองอากาศ</li>
+          <li>ตรวจรอยขาด รอยรั่ว ซิป และวันหมดอายุของไส้กรองก่อนใช้</li>
+          <li>ทำงานเป็นคู่ ให้คู่ทำงานตรวจการสวม (buddy check) และเตรียมจุดล้างสารปนเปื้อนก่อนถอด PPE</li>
+        </ol>
+      </div>`,
+  zones:{face:[[100,24,100,98]],eyes:[[112,54,76,28]],mouth:[[120,84,60,26]],body:[[62,118,176,282]],hands:[[56,250,62,86],[182,250,62,86]],feet:[[84,400,132,120]]},
+  order:['suit','raincoat','gloves','fabricgloves','goggles','glasses','shield','resp','mask','boots','sneakers'],
+  items:[
+ {id:'suit',name:'ชุดป้องกันสารเคมี',en:'Chemical protective suit',zone:'body',code:'ISO 7010 M010',
+  protects:['สารเคมีเหลวกระเด็นหรือซึมผ่านถึงผิวหนัง','ไอระเหยและฝุ่นสารเคมีเกาะผิว (ตามระดับชุดที่เลือก)','ปนเปื้อนเสื้อผ้าแล้วติดตัวออกนอกพื้นที่'],
+  howto:['เลือกวัสดุและระดับชุดตาม SDS ของสารที่รั่ว','รูดซิปให้สุด ปิดแถบกาว ดึงฮู้ดคลุมศีรษะ','ขากางเกงคลุมทับรองเท้าบูท ไม่สอดไว้ในบูท เพื่อไม่ให้สารไหลลงรองเท้า'],
+  hint:'ชุดป้องกันสารเคมีคลุมทั้งร่างกาย ลองวางกลางลำตัว'},
+ {id:'gloves',name:'ถุงมือกันสารเคมี',en:'Chemical-resistant gloves (nitrile, neoprene)',zone:'hands',code:'ISO 7010 M009',needs:'suit',
+  needMsg:'ถุงมือต้องสวมหลังชุด เพื่อจัดรอยต่อระหว่างปลายแขนเสื้อกับข้อมือถุงมือ แล้วพันเทปปิดไม่ให้สารเคมีไหลเข้า',
+  protects:['สารเคมีสัมผัสมือโดยตรงระหว่างเก็บกู้','สารซึมผ่านถุงมือ (วัสดุต่างกันทนสารต่างชนิด)'],
+  howto:['ไนไตรล์เหมาะกับน้ำมันและตัวทำละลายหลายชนิด นีโอพรีนทนกรด ด่าง และแอลกอฮอล์ ให้ตรวจตารางความทนทานของผู้ผลิตทุกครั้ง','เลือกแบบข้อยาว ปลายแขนเสื้อคลุมทับหรือพันเทปที่รอยต่อ','เป่าลมตรวจรอยรั่วก่อนใส่ และเปลี่ยนเมื่อครบเวลาที่สารซึมผ่าน'],
+  hint:'ถุงมือปกป้องมือ ลองวางที่ปลายแขน'},
+ {id:'goggles',name:'แว่นครอบตากันสารเคมี',en:'Chemical splash goggles',zone:'eyes',code:'ISO 7010 M004',
+  protects:['สารเคมีเหลวกระเด็นเข้าตา','ไอระเหยที่ระคายเคืองตา (รุ่นระบายอากาศทางอ้อมหรือไม่มีช่องระบาย)'],
+  howto:['ใช้รุ่นระบายอากาศทางอ้อม (indirect vent) ห้ามใช้รุ่นที่มีรูระบายตรง','ขอบแว่นต้องแนบใบหน้ารอบด้าน','เคลือบกันฝ้า หรือเช็ดเลนส์ให้มองเห็นชัดก่อนเข้าพื้นที่'],
+  hint:'แว่นครอบตาต้องปิดดวงตาให้มิด ลองวางตรงดวงตา'},
+ {id:'shield',name:'กระบังหน้า / หน้ากากครอบหน้า',en:'Face shield',zone:'face',code:'ISO 7010 M013',needs:'goggles',
+  needMsg:'กระบังหน้าเป็นการป้องกันชั้นที่สอง ด้านล่างและด้านข้างยังเปิดอยู่ ต้องสวมแว่นครอบตากันสารเคมีก่อนเสมอ',
+  protects:['สารเคมีกระเด็นเป็นปริมาณมากใส่ใบหน้าและลำคอ','ปกป้องแว่นและหน้ากากชั้นในจากการเปื้อนโดยตรง'],
+  howto:['สวมทับแว่นครอบตา ไม่ใช้แทนแว่น','ปรับสายคาดศีรษะให้กระบังคลุมถึงใต้คาง','ล้างทำความสะอาดหลังใช้ และเปลี่ยนเมื่อแผ่นใสขุ่นหรือร้าว'],
+  hint:'กระบังหน้าคลุมทั้งใบหน้า ลองวางบนใบหน้า'},
+ {id:'resp',name:'หน้ากากกรองอากาศ ',en:'Respirator / Self-contained breathing apparatus',zone:'mouth',code:'ISO 7010 M017',
+  protects:['สูดไอระเหย ก๊าซ และละอองสารเคมีเข้าปอด',' หน้ากากกรองอากาศใช้ในบรรยากาศที่ไม่ทราบชนิดสาร ความเข้มข้นสูง หรือออกซิเจนไม่พอ'],
+  howto:['เลือกไส้กรองให้ตรงกับชนิดสาร และตรวจวันหมดอายุ','ทดสอบความแนบสนิท (seal check) ทุกครั้งที่สวม ต้องไม่มีหนวดเคราขวางขอบหน้ากาก','ถ้าได้กลิ่นสารหรือหายใจลำบาก ให้ออกจากพื้นที่ทันที'],
+  hint:'หน้ากากกรองอากาศครอบจมูกและปาก ลองวางตรงนั้น'},
+ {id:'boots',name:'รองเท้าบูทกันสารเคมี',en:'Chemical-resistant boots',zone:'feet',code:'ISO 7010 M008',
+  protects:['ยืนหรือเดินบนพื้นที่มีสารเคมีนองอยู่','สารกระเด็นใส่เท้าและหน้าแข้ง'],
+  howto:['ใช้บูทยางหรือ PVC ที่ทนต่อสารนั้น ทรงสูงถึงหน้าแข้ง','สวมขากางเกงชุดคลุมทับปากบูท','ล้างบูทที่จุดล้างสารปนเปื้อนก่อนถอด'],
+  hint:'รองเท้าบูทปกป้องเท้า ลองวางที่ส่วนล่างสุด'},
+ {id:'mask',name:'หน้ากากอนามัย',distractor:true,
+  why:'หน้ากากอนามัยกันได้แค่ละอองน้ำลายและฝุ่นหยาบ ไม่มีไส้กรองที่จับไอระเหยหรือก๊าซสารเคมี และขอบไม่แนบหน้า สารเคมีจึงยังถูกสูดเข้าไปได้'},
+ {id:'fabricgloves',name:'ถุงมือผ้า',distractor:true,
+  why:'ถุงมือผ้าดูดซับสารเคมีแล้วอมไว้แนบผิวหนัง ทำให้สัมผัสนานกว่าเดิม อันตรายกว่าการไม่ใส่ ต้องใช้ถุงมือไนไตรล์หรือนีโอพรีนที่ทนสารนั้น'},
+ {id:'raincoat',name:'เสื้อกันฝน',distractor:true,
+  why:'เสื้อกันฝนกันน้ำฝนได้ แต่ไม่ได้ทดสอบการซึมผ่านของสารเคมี ตะเข็บและกระดุมรั่ว ไม่คลุมขาและศีรษะ ต้องใช้ชุดป้องกันสารเคมีที่ได้มาตรฐาน'},
+ {id:'sneakers',name:'รองเท้าผ้าใบ',distractor:true,
+  why:'รองเท้าผ้าใบซึมสารเคมีถึงเท้าทันทีเมื่อเหยียบสารที่นองพื้น และพื้นยางทั่วไปอาจถูกสารกัดกร่อน ต้องใช้รองเท้าบูทกันสารเคมี'},
+ {id:'glasses',name:'แว่นตานิรภัยธรรมดา',distractor:true,
+  why:'แว่นตานิรภัยกันเศษวัสดุกระแทกได้ แต่ด้านบน ด้านล่าง และด้านข้างเปิด ของเหลวกระเด็นเข้าตาได้ งานสารเคมีต้องใช้แว่นครอบตากันสารเคมีที่แนบหน้ารอบด้าน'}
+]},
+ height:{name:'งานที่สูง',scene:'scene-height',bg:'#8fc4e8',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่ป้องกันการตกจากที่สูงไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: ของหลอกบางชิ้นหน้าตาคล้ายของจริงมาก ให้ดูรายละเอียด เช่น สายรัดคาง หรือสายรัดขา',
+  story:'พนักงานคนนี้กำลังจะขึ้นไปทำงานบนนั่งร้านชั้นบนของอาคาร',
+  head:'แต่งตัวให้พนักงานก่อนขึ้นทำงานบนที่สูง',
+  done:'ครบชุดแล้ว คล้องตะขอเชือกกับจุดยึดก่อนเริ่มงาน แล้วขึ้นทำงานได้',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย งานบนที่สูงต้องมีราวกันตก นั่งร้านที่ตรวจแล้ว และจุดยึดที่รับแรงได้ก่อน แล้วจึงใช้ PPE เป็นอีกชั้นหนึ่ง',
+  notes:`<div class="note"><h3>ลำดับการสวมที่แนะนำ</h3><ol>
+    <li>รองเท้านิรภัย ผูกเชือกให้แน่น</li>
+    <li>เข็มขัดนิรภัยแบบเต็มตัว ปรับสายไหล่ สายอก และสายรัดขาให้กระชับ</li>
+    <li>หมวกนิรภัย รัดสายรัดคางทุกครั้ง</li>
+    <li>คล้องตะขอเชือกนิรภัยกับจุดยึดที่รับแรงได้ ก่อนออกจากพื้นที่ปลอดภัย</li></ol></div>
+   <div class="note"><h3>ก่อนขึ้นทำงานบนที่สูง</h3><ol>
+    <li>ตรวจสภาพเข็มขัด สาย ตะเข็บ ห่วง D และตะขอ ห้ามใช้ชุดที่เคยรับแรงกระชากจากการตกแล้ว</li>
+    <li>เลือกจุดยึดที่อยู่สูงกว่าห่วง D ที่หลัง เพื่อลดระยะตก</li>
+    <li>ใช้เชือกนิรภัยแบบตะขอคู่ เพื่อให้คล้องอยู่อย่างน้อยหนึ่งจุดตลอดเวลาที่เคลื่อนที่</li>
+    <li>เตรียมแผนช่วยเหลือ ผู้ที่ห้อยค้างในเข็มขัดนาน ๆ เสี่ยงอันตรายต่อการไหลเวียนเลือด</li></ol></div>`,
+  zones:{head:[[100,14,100,72]],body:[[62,100,176,330]],feet:[[80,440,140,90]]},
+  order:['cap','helmet','bikehelmet','nostrap','belt','harness','backbelt','sandals','dressshoes','shoes'],
+  items:[
+   {id:'harness',name:'เข็มขัดนิรภัยแบบเต็มตัว',en:'Full-body harness',zone:'body',code:'ISO 7010 M018',
+    protects:['ตกจากที่สูงแล้วกระแทกพื้นหรือโครงสร้างด้านล่าง','กระจายแรงกระชากไปที่ต้นขา สะโพก อก และไหล่ ไม่ให้รวมที่จุดเดียว','ทำให้ร่างกายตั้งตรงขณะห้อยรอการช่วยเหลือ'],
+    howto:['ห่วง D อยู่กลางหลังระดับสะบัก','สายรัดขาและสายอกต้องกระชับ สอดฝ่ามือแบนได้พอดี','คล้องเชือกนิรภัยกับจุดยึดที่รับแรงได้ ไม่คล้องกับราวหรือท่อที่ไม่ได้ออกแบบให้รับแรง'],
+    hint:'เข็มขัดนิรภัยแบบเต็มตัวรัดทั้งลำตัวและต้นขา ลองวางกลางลำตัว'},
+   {id:'helmet',name:'หมวกนิรภัย',en:'Safety helmet',zone:'head',code:'ISO 7010 M014',
+    protects:['วัสดุหรือเครื่องมือตกจากด้านบนใส่ศีรษะ','ศีรษะกระแทกโครงสร้างหรือพื้นเมื่อพลัดตก','สายรัดคางกันหมวกหลุดเมื่อก้ม ลมแรง หรือตก'],
+    howto:['ปรับสายรัดศีรษะด้านในให้หมวกพอดี ไม่โยก','รัดสายรัดคางทุกครั้งที่ทำงานบนที่สูง','เปลี่ยนหมวกที่ร้าว เคยรับแรงกระแทก หรือพลาสติกเสื่อมจากแดด'],
+    hint:'หมวกนิรภัยปกป้องศีรษะ ลองวางบนศีรษะ'},
+   {id:'shoes',name:'รองเท้านิรภัย',en:'Safety shoes',zone:'feet',code:'ISO 7010 M008',
+    protects:['ลื่นบนแผ่นพื้นนั่งร้านหรือคานที่เปียก มีฝุ่น หรือคราบน้ำมัน','ของหนักตกใส่หรือทับนิ้วเท้า','ของมีคมแทงทะลุพื้นรองเท้า'],
+    howto:['พื้นยางมีดอกยางลึก ทนการลื่น และมีหัวเหล็กหรือหัวคอมโพสิต','ผูกเชือกให้แน่น ไม่ปล่อยให้สายหลวมจนเกี่ยวโครงนั่งร้าน','ตรวจดอกยาง ถ้าสึกจนเรียบให้เปลี่ยน'],
+    hint:'รองเท้านิรภัยปกป้องเท้า ลองวางที่ส่วนล่างสุด'},
+   {id:'nostrap',name:'หมวกนิรภัยไม่มีสายรัดคาง',distractor:true,
+    why:'บนพื้นดินใช้ได้ แต่บนที่สูง หมวกหลุดได้ง่ายเมื่อก้มตัว ลมแรง หรือพลัดตก ศีรษะจึงไม่มีอะไรป้องกันตอนกระแทก และหมวกที่ร่วงลงไปยังอาจตกใส่คนด้านล่าง'},
+   {id:'cap',name:'หมวกแก๊ป',distractor:true,
+    why:'หมวกแก๊ปกันแดดได้อย่างเดียว ไม่มีเปลือกแข็งและระบบรองรับแรงกระแทก ป้องกันของตกใส่หรือศีรษะกระแทกไม่ได้'},
+   {id:'bikehelmet',name:'หมวกกันน็อกจักรยาน',distractor:true,
+    why:'หมวกจักรยานออกแบบให้กันการกระแทกตอนล้ม ไม่ได้ทดสอบกับของหนักที่ตกจากด้านบน และมีช่องระบายอากาศกว้างที่ของมีคมทะลุเข้าได้ งานที่สูงต้องใช้หมวกนิรภัยอุตสาหกรรมที่ได้มาตรฐาน'},
+   {id:'belt',name:'เข็มขัดกางเกง',distractor:true,
+    why:'เข็มขัดกางเกงไม่มีห่วง D สายไหล่ และสายรัดขา ถ้าตก แรงกระชากจะรวมที่เอวจุดเดียว อาจบาดเจ็บรุนแรงหรือลื่นหลุดออกจากตัว'},
+   {id:'backbelt',name:'เข็มขัดพยุงหลัง',distractor:true,
+    why:'เข็มขัดพยุงหลังใช้ช่วยพยุงเอวตอนยกของ ไม่มีจุดคล้องเชือกนิรภัย และไม่ได้ออกแบบให้รับแรงกระชากจากการตก'},
+   {id:'sandals',name:'รองเท้าแตะ',distractor:true,
+    why:'รองเท้าแตะหลุดง่าย พื้นเรียบลื่น และเปิดนิ้วเท้าให้ของตกใส่หรือโดนของมีคม บนนั่งร้านยังเสี่ยงสะดุดและพลัดตก'},
+   {id:'dressshoes',name:'รองเท้าหนังพื้นเรียบ',distractor:true,
+    why:'รองเท้าหนังพื้นเรียบดูทนทาน แต่พื้นไม่มีดอกยาง ลื่นมากบนแผ่นเหล็กหรือไม้ที่เปียก และไม่มีหัวกันกระแทก'}
+  ]},
+ noise:{name:'งานในพื้นที่เสียงดัง',scene:'scene-noise',bg:'#3d4652',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่ลดเสียงหรือป้องกันเท้าไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: ของที่ "ปิดหู" ไม่ได้แปลว่า "ลดเสียง" ให้ดูว่าอุปกรณ์ออกแบบมาเพื่อป้องกันเสียงจริงหรือไม่',
+  story:'พนักงานคนนี้ต้องเข้าไปทำงานในไลน์ผลิต ข้างเครื่องปั๊มโลหะและเครื่องอัดลม ระดับเสียงวัดได้ 95 dB(A)',
+  head:'แต่งตัวให้พนักงานก่อนเข้าพื้นที่เสียงดัง',
+  done:'ครบชุดแล้ว ตรวจว่าที่ครอบหูแนบสนิทรอบใบหู แล้วเข้าพื้นที่ทำงานได้',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย ในพื้นที่เสียงดังควรลดเสียงที่ต้นเหตุก่อน เช่น ครอบเครื่องจักรหรือติดวัสดุซับเสียง แล้วจึงใช้อุปกรณ์ปกป้องการได้ยินเป็นอีกชั้นหนึ่ง',
+  notes:`<div class="note"><h3>ลำดับการสวมที่แนะนำ</h3><ol>
+    <li>รองเท้านิรภัย ผูกเชือกให้แน่นก่อนเข้าไลน์ผลิต</li>
+    <li>ที่อุดหู: ล้างมือ คลึงให้เรียวเล็ก ดึงใบหูขึ้นและไปด้านหลัง สอดเข้าไปแล้วกดค้างจนพองตัวเต็มรูหู</li>
+    <li>ที่ครอบหู: ปัดผมออกจากใบหู ให้ฟองน้ำครอบรอบใบหูทั้งหมด แล้วปรับก้านคาดศีรษะให้แนบ</li>
+    <li>สวมก่อนเข้าพื้นที่ และถอดหลังออกจากพื้นที่แล้วเท่านั้น</li></ol></div>
+   <div class="note"><h3>ก่อนเข้าพื้นที่เสียงดัง</h3><ol>
+    <li>ดูป้ายบังคับสวมอุปกรณ์ปกป้องการได้ยินและระดับเสียงหน้าพื้นที่</li>
+    <li>ถ้าต้องตะโกนคุยกับคนที่ยืนห่างประมาณหนึ่งช่วงแขน แปลว่าเสียงดังจนต้องป้องกันหู</li>
+    <li>ถ้าเสียงดังมาก ให้ใช้ที่อุดหูร่วมกับที่ครอบหู ตามที่เจ้าหน้าที่ความปลอดภัยกำหนด</li>
+    <li>ถ้ามีเสียงวิ้งในหูหรือได้ยินไม่ชัดหลังเลิกงาน ให้แจ้งหัวหน้าและเข้ารับการตรวจสมรรถภาพการได้ยิน</li></ol></div>`,
+  zones:{ears:[[98,22,104,82]],feet:[[80,440,140,90]]},
+  order:['headphones','earmuff','earbuds','cotton','beanie','sneakers','safeshoes','sandals','dressshoes','rainboots'],
+  items:[
+   {id:'earmuff',name:'ที่อุดหู / ที่ครอบหูลดเสียง',en:'Earplugs / Earmuffs',zone:'ears',code:'ISO 7010 M003',
+    protects:['เสียงดังต่อเนื่องจากเครื่องจักรที่ทำลายประสาทหูอย่างถาวร','เสียงกระแทกดังเป็นจังหวะ เช่น เครื่องปั๊มโลหะ','อาการหูอื้อและเสียงวิ้งในหูหลังเลิกงาน'],
+    howto:['เลือกอุปกรณ์ที่ค่าลดเสียง (NRR/SNR) เหมาะกับระดับเสียงในพื้นที่','ที่อุดหูต้องสอดลึกพอและพองตัวเต็มรูหู ที่ครอบหูต้องครอบรอบใบหูโดยไม่มีผม แว่น หรือหมวกขวางขอบ','สวมตลอดเวลาที่อยู่ในพื้นที่ แม้ถอดเพียงช่วงสั้น ๆ ก็ลดประสิทธิภาพการป้องกันลงมาก'],
+    hint:'ที่อุดหูและที่ครอบหูปกป้องการได้ยิน ลองวางที่ศีรษะตรงหู'},
+   {id:'safeshoes',name:'รองเท้านิรภัย',en:'Safety shoes',zone:'feet',code:'ISO 7010 M008',
+    protects:['ชิ้นงานหรือแม่พิมพ์โลหะหนักตกทับเท้า','เศษโลหะคมแทงทะลุพื้นรองเท้า','ลื่นบนพื้นที่มีคราบน้ำมันจากเครื่องจักร'],
+    howto:['ใช้รุ่นหัวเหล็กหรือหัวคอมโพสิตที่ได้มาตรฐาน','ผูกเชือกให้แน่น และไม่เหยียบส้นรองเท้า','เปลี่ยนเมื่อหัวรองเท้าบุบ พื้นสึก หรือมีรอยฉีกขาด'],
+    hint:'รองเท้านิรภัยปกป้องเท้า ลองวางที่ส่วนล่างสุด'},
+   {id:'headphones',name:'หูฟังเพลงแบบครอบหู',distractor:true,
+    why:'หูฟังเพลงไม่ได้ออกแบบให้ลดเสียง ฟองน้ำไม่แนบสนิท และเมื่อเปิดเพลงกลบเสียงเครื่องจักร หูจะยิ่งรับเสียงดังขึ้น ยังทำให้ไม่ได้ยินสัญญาณเตือนด้วย'},
+   {id:'earbuds',name:'หูฟังไร้สาย',distractor:true,
+    why:'หูฟังไร้สายไม่มีค่าลดเสียงที่รับรองสำหรับงานอุตสาหกรรม ระบบตัดเสียงรบกวนไม่ได้ออกแบบให้รับเสียงกระแทกดัง และไม่ปิดรูหูสนิทพอ'},
+   {id:'cotton',name:'สำลีอุดหู',distractor:true,
+    why:'สำลีลดเสียงได้น้อยมากเพราะเสียงผ่านช่องอากาศในเส้นใยได้ และอาจหลุดค้างในรูหู ต้องใช้ที่อุดหูที่ผลิตมาเพื่อลดเสียงโดยเฉพาะ'},
+   {id:'beanie',name:'หมวกไหมพรมปิดหู',distractor:true,
+    why:'หมวกไหมพรมปิดหูได้ก็จริง แต่เนื้อผ้าเป็นรูพรุน เสียงผ่านได้เกือบทั้งหมด และยังทำให้ที่ครอบหูแนบไม่สนิทถ้าสวมทับ'},
+   {id:'sneakers',name:'รองเท้าผ้าใบ',distractor:true,
+    why:'รองเท้าผ้าใบไม่มีหัวกันกระแทก ถ้าชิ้นงานโลหะตกทับ นิ้วเท้าบาดเจ็บได้ทันที และเศษโลหะคมแทงทะลุพื้นผ้าใบได้'},
+   {id:'sandals',name:'รองเท้าแตะ',distractor:true,
+    why:'รองเท้าแตะเปิดนิ้วเท้าให้ของตกใส่และเศษโลหะบาด หลุดง่าย และลื่นบนพื้นที่มีคราบน้ำมัน'},
+   {id:'dressshoes',name:'รองเท้าหนังพื้นเรียบ',distractor:true,
+    why:'รองเท้าหนังดูแข็งแรง แต่ไม่มีหัวเหล็กกันของตกทับ พื้นเรียบลื่นบนคราบน้ำมัน และไม่กันของมีคมแทงทะลุพื้น'},
+   {id:'rainboots',name:'รองเท้าบูทยางกันฝน',distractor:true,
+    why:'บูทยางกันฝนกันน้ำได้ แต่ไม่มีหัวเหล็กและพื้นกันทะลุ ใช้แทนรองเท้านิรภัยในไลน์ผลิตโลหะไม่ได้'}
+  ]},
+ fire:{name:'งานดับเพลิง',scene:'scene-fire',bg:'#3a2230',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่ทนความร้อนและเปลวไฟไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: สวมชุดดับเพลิงก่อนถุงมือกันไฟ เพื่อให้ข้อมือถุงมือซ้อนกับปลายแขนชุดได้สนิท',
+  story:'เกิดเพลิงไหม้ในอาคาร พนักงานในทีมดับเพลิงต้องเตรียมเข้าไประงับเหตุ',
+  head:'แต่งตัวให้พนักงานก่อนเข้าระงับเพลิง',
+  done:'ครบชุดแล้ว ให้คู่ทำงานตรวจรอยต่อทุกจุด แล้วเข้าระงับเหตุได้',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย การดับเพลิงต้องทำโดยผู้ที่ผ่านการฝึกอบรมแล้วเท่านั้น และต้องประเมินว่าไฟอยู่ในระดับที่ควบคุมได้ก่อนเข้าไป',
+  notes:`<div class="note"><h3>ลำดับการสวมที่แนะนำ</h3><ol>
+    <li>กางเกงและรองเท้าบูทดับเพลิง (ขากางเกงคลุมทับปากบูท)</li>
+    <li>เสื้อชุดดับเพลิง รูดซิปและปิดแถบปิดคอให้สนิท</li>
+    <li>หมวกดับเพลิง รัดสายรัดคาง และลดกระบังหรือแผ่นปิดท้ายทอยลงคลุมลำคอ</li>
+    <li>ถุงมือกันไฟ สวมเป็นลำดับสุดท้าย ให้ข้อมือถุงมือซ้อนกับปลายแขนเสื้อ</li></ol></div>
+   <div class="note"><h3>ก่อนเข้าพื้นที่เพลิงไหม้</h3><ol>
+    <li>ตรวจสภาพชุด: ห้ามมีรอยขาด รอยไหม้ หรือคราบน้ำมันที่ติดไฟได้</li>
+    <li>ไม่ให้มีผิวหนังโผล่ระหว่างรอยต่อ เช่น คอ ข้อมือ และข้อเท้า</li>
+    <li>เข้าพื้นที่เป็นทีม มีผู้สั่งการ และรู้เส้นทางถอยออก</li>
+    <li>ถ้าพื้นที่มีควันหนาหรือเป็นที่อับอากาศ ต้องใช้ชุดกรองอากาศ  เพิ่ม และต้องผ่านการฝึกใช้มาก่อน</li></ol></div>`,
+  zones:{head:[[96,10,108,80]],body:[[62,100,176,330]],hands:[[56,244,62,92],[182,244,62,92]],feet:[[80,400,140,120]]},
+  order:['nostrap','firehelmet','raincoat','vest','firesuit','fabricgloves','firegloves','gloves','rainboots','fireboots'],
+  items:[
+   {id:'firesuit',name:'ชุดดับเพลิง',en:'Firefighting protective suit (turnout gear)',zone:'body',code:'ISO 7010 M010',
+    protects:['ความร้อนแผ่จากเปลวไฟและพื้นผิวที่ร้อน','เปลวไฟและสะเก็ดไฟสัมผัสร่างกาย','น้ำร้อนและไอน้ำจากการฉีดดับเพลิง'],
+    howto:['ชุดมีหลายชั้น: ชั้นนอกทนไฟ ชั้นกลางกันความชื้น ชั้นในกันความร้อน','รูดซิป ปิดแถบปิดคอ และยกปกคอขึ้นคลุมลำคอ','แถบสะท้อนแสงต้องสะอาด เพื่อให้ทีมมองเห็นท่ามกลางควัน'],
+    hint:'ชุดดับเพลิงคลุมทั้งร่างกาย ลองวางกลางลำตัว'},
+   {id:'firehelmet',name:'หมวกดับเพลิง',en:'Firefighter helmet',zone:'head',code:'ISO 7010 M014',
+    protects:['วัสดุและเศษโครงสร้างที่ร้อนตกใส่ศีรษะ','ความร้อนและน้ำร้อนไหลลงคอ (ปีกหมวกด้านหลังยาว)','ศีรษะกระแทกในพื้นที่ทัศนวิสัยต่ำ'],
+    howto:['รัดสายรัดคางทุกครั้ง','ลดแผ่นปิดท้ายทอยหรือฮู้ดกันไฟลงคลุมลำคอ','เปลี่ยนเมื่อเปลือกหมวกพอง ไหม้ หรือแตกร้าว'],
+    hint:'หมวกดับเพลิงปกป้องศีรษะ ลองวางบนศีรษะ'},
+   {id:'firegloves',name:'ถุงมือกันไฟ',en:'Firefighting gloves',zone:'hands',code:'ISO 7010 M009',needs:'firesuit',
+    needMsg:'ถุงมือกันไฟต้องสวมหลังชุดดับเพลิง เพื่อให้ข้อมือถุงมือซ้อนกับปลายแขนเสื้อ ไม่มีผิวหนังโผล่ตรงข้อมือ',
+    protects:['จับวัตถุร้อน ประตู ลูกบิด และสายส่งน้ำดับเพลิง','เปลวไฟและสะเก็ดไฟโดนมือ','ของมีคมจากเศษกระจกและโครงสร้าง'],
+    howto:['ใช้ถุงมือดับเพลิงที่ทนความร้อนและกันการบาด','ข้อมือถุงมือต้องซ้อนกับปลายแขนเสื้อ','ถุงมือที่เปียกจะนำความร้อนได้ดีขึ้น ระวังการลวกเมื่อจับของร้อนนาน ๆ'],
+    hint:'ถุงมือกันไฟปกป้องมือ ลองวางที่ปลายแขน'},
+   {id:'fireboots',name:'รองเท้าบูทดับเพลิง',en:'Firefighting boots',zone:'feet',code:'ISO 7010 M008',
+    protects:['เดินบนเศษซากที่ร้อนและน้ำร้อนที่ขังอยู่','ตะปูและเศษโลหะแทงทะลุพื้นรองเท้า','ของหนักตกใส่นิ้วเท้า'],
+    howto:['ใช้บูทดับเพลิงที่มีหัวเหล็กและพื้นกันทะลุ','ขากางเกงชุดดับเพลิงคลุมทับปากบูท','ตรวจรอยไหม้และรอยรั่วหลังใช้งานทุกครั้ง'],
+    hint:'รองเท้าบูทดับเพลิงปกป้องเท้า ลองวางที่ส่วนล่างสุด'},
+   {id:'nostrap',name:'หมวกนิรภัยงานก่อสร้าง',distractor:true,
+    why:'หมวกนิรภัยงานก่อสร้างเป็นพลาสติกที่อ่อนตัวหรือละลายเมื่อโดนความร้อนสูง ไม่มีปีกหลังกันน้ำร้อนไหลลงคอ จึงใช้เข้าพื้นที่เพลิงไหม้ไม่ได้'},
+   {id:'raincoat',name:'เสื้อกันฝน',distractor:true,
+    why:'เสื้อกันฝนทำจากพลาสติกที่ละลายและติดไฟได้ ถ้าโดนความร้อน พลาสติกที่ละลายจะติดผิวหนังจนเกิดแผลไหม้รุนแรง'},
+   {id:'vest',name:'เสื้อกั๊กสะท้อนแสง',distractor:true,
+    why:'เสื้อกั๊กสะท้อนแสงช่วยให้คนอื่นมองเห็นได้อย่างเดียว ผ้าโพลีเอสเตอร์ละลายเมื่อโดนความร้อน และไม่คลุมแขน ขา และลำคอ'},
+   {id:'fabricgloves',name:'ถุงมือผ้า',distractor:true,
+    why:'ถุงมือผ้าบางนำความร้อนถึงมือเร็ว ติดไฟได้ และเมื่อเปียกน้ำแล้วจับของร้อน จะเกิดไอน้ำลวกมือ'},
+   {id:'gloves',name:'ถุงมือยางไนไตรล์',distractor:true,
+    why:'ถุงมือไนไตรล์ใช้กันสารเคมี แต่จะละลายและหดตัวติดมือเมื่อโดนความร้อน ใช้ดับเพลิงไม่ได้'},
+   {id:'rainboots',name:'รองเท้าบูทยางกันฝน',distractor:true,
+    why:'บูทยางกันฝนไม่ทนความร้อน พื้นอาจอ่อนตัวเมื่อเหยียบเศษซากที่ร้อน และไม่มีหัวเหล็กหรือพื้นกันตะปูทะลุ'}
+  ]},
+ heat:{name:'งานความร้อน',scene:'scene-heat',bg:'#221c18',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง มีของจริงแค่ชิ้นเดียว ที่เหลือเป็นของหลอกที่ทนความร้อนไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: มีอุปกรณ์ที่ถูกต้องเพียงชิ้นเดียว ถุงมือหลายแบบหน้าตาคล้ายกัน ให้ดูว่าชิ้นไหนออกแบบมาให้ทนความร้อนจากงานอุตสาหกรรมจริง',
+  story:'พนักงานคนนี้ต้องใช้คีมด้ามยาวคีบชิ้นงานโลหะร้อนออกจากหน้าเตา',
+  head:'หยิบถุงมือที่ถูกต้องให้พนักงานก่อนจับชิ้นงานร้อน',
+  done:'ถูกต้อง! ตรวจว่าถุงมือแห้ง ไม่มีรอยไหม้หรือรู แล้วเริ่มงานได้',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย งานความร้อนควรลดอันตรายที่ต้นเหตุก่อน เช่น ติดฉากกั้นความร้อน ใช้เครื่องมือด้ามยาว และจัดเวลาพักในที่เย็น แล้วจึงใช้ PPE เป็นอีกชั้นหนึ่ง',
+  notes:`<div class="note"><h3>วิธีใช้ถุงมือกันความร้อน</h3><ol>
+    <li>เลือกถุงมือที่ระบุอุณหภูมิใช้งานให้เหมาะกับงาน</li>
+    <li>ใช้แบบข้อยาว ให้คลุมทับปลายแขนเสื้อ ไม่มีผิวหนังโผล่ตรงข้อมือ</li>
+    <li>ตรวจก่อนใช้ทุกครั้ง ห้ามมีรอยไหม้ รู หรือหนังแข็งกรอบ</li>
+    <li>ถอดโดยดึงที่ข้อมือ ไม่ใช้ปากหรือมือเปล่าจับปลายนิ้วถุงมือที่ยังร้อน</li></ol></div>
+   <div class="note"><h3>ก่อนทำงานกับความร้อน</h3><ol>
+    <li>ถุงมือต้องแห้ง ถุงมือเปียกนำความร้อนดีขึ้นและเกิดไอน้ำลวกมือได้</li>
+    <li>ใส่เสื้อผ้าชั้นในที่ทำจากผ้าฝ้าย ไม่ใช่ผ้าใยสังเคราะห์ที่ละลายติดผิว</li>
+    <li>เตรียมพื้นที่ให้แห้ง น้ำที่สัมผัสโลหะหลอมเหลวจะระเบิดเป็นไอน้ำอย่างรุนแรง</li>
+    <li>ดื่มน้ำบ่อย ๆ และพักในที่เย็นตามรอบ สังเกตอาการเวียนหัว คลื่นไส้ หรือเหงื่อหยุดไหล ซึ่งเป็นสัญญาณของโรคจากความร้อน</li></ol></div>`,
+  zones:{head:[[100,14,100,72]],body:[[92,100,116,330]],arms:[[56,140,52,104],[192,140,52,104]],hands:[[54,250,66,86],[180,250,66,86]]},
+  order:['ovenmitt','fabricgloves','dishglove','heatgloves','gloves','dotgloves','plasticapron','sunsleeves','cap','nostrap'],
+  items:[
+   {id:'heatgloves',name:'ถุงมือกันความร้อน',en:'Heat-resistant gloves',zone:'hands',code:'ISO 7010 M009',
+    protects:['จับเครื่องมือ แม่พิมพ์ และชิ้นงานที่ร้อน','สะเก็ดโลหะหลอมเหลวกระเด็นใส่มือ','ความร้อนแผ่จากหน้าเตาขณะยื่นมือเข้าใกล้'],
+    howto:['เลือกให้ทนอุณหภูมิของงาน เช่น หนังบุฉนวน หรือผ้าเคลือบอะลูมิเนียม','ใช้แบบข้อยาวที่คลุมทับปลายแขนเสื้อ','ถุงมือที่เปียกจะนำความร้อนดีขึ้น ห้ามใช้ถุงมือเปียกจับของร้อน'],
+    hint:'ถุงมือกันความร้อนปกป้องมือ ลองวางที่ปลายแขน'},
+   {id:'ovenmitt',name:'ถุงมือจับหม้อ',distractor:true,
+    why:'ถุงมือจับหม้อออกแบบมาสำหรับครัว ทนความร้อนได้แค่ระดับเตาอบในบ้าน ผ้าติดไฟเมื่อโดนสะเก็ดโลหะ และไม่มีนิ้วแยก จึงจับคีมหรือชิ้นงานได้ไม่มั่นคง'},
+   {id:'fabricgloves',name:'ถุงมือผ้า',distractor:true,
+    why:'ถุงมือผ้าบางนำความร้อนถึงมือเร็ว และติดไฟได้เมื่อโดนสะเก็ดโลหะหลอมเหลว'},
+   {id:'dishglove',name:'ถุงมือยางล้างจาน',distractor:true,
+    why:'ถุงมือยางล้างจานบางและอ่อนตัวเมื่อโดนความร้อน ยางอาจละลายติดผิวมือจนเกิดแผลไหม้'},
+   {id:'gloves',name:'ถุงมือยางไนไตรล์',distractor:true,
+    why:'ถุงมือไนไตรล์ใช้กันสารเคมี ไม่ทนความร้อน จะละลายและหดตัวติดมือเมื่อจับของร้อน'},
+   {id:'dotgloves',name:'ถุงมือผ้าเคลือบยางกันลื่น',distractor:true,
+    why:'ถุงมือเคลือบยางช่วยให้จับของไม่ลื่น แต่ผ้าบาง และชั้นยางหรือพลาสติกที่เคลือบจะละลายเมื่อจับชิ้นงานร้อน'},
+   {id:'plasticapron',name:'ผ้ากันเปื้อนพลาสติก',distractor:true,
+    why:'ผ้ากันเปื้อนพลาสติกกันน้ำและสารเคมีได้ แต่จะละลายทันทีเมื่อโดนสะเก็ดโลหะหลอมเหลว พลาสติกที่ละลายจะติดผิวจนเกิดแผลไหม้รุนแรง'},
+   {id:'sunsleeves',name:'ปลอกแขนกันแดด',distractor:true,
+    why:'ปลอกแขนกันแดดเป็นผ้าใยสังเคราะห์บาง กันได้แค่รังสี UV จะละลายและติดไฟเมื่อโดนความร้อนสูงหรือสะเก็ดโลหะ'},
+   {id:'cap',name:'หมวกแก๊ป',distractor:true,
+    why:'หมวกแก๊ปผ้าไม่กันของหรือสะเก็ดร้อนตกใส่ และติดไฟได้'},
+   {id:'nostrap',name:'หมวกนิรภัยพลาสติกทั่วไป',distractor:true,
+    why:'หมวกพลาสติกทั่วไปอ่อนตัวหรือเสียรูปเมื่ออยู่ใกล้แหล่งความร้อนสูงเป็นเวลานาน ความแข็งแรงจึงลดลงจนกันการกระแทกไม่ได้'}
+  ]},
+ weld:{name:'งานเชื่อม / ตัดโลหะ',scene:'scene-weld',bg:'#262b35',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่กันแสงเชื่อมและสะเก็ดไฟไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: แว่นดำกันแดดก็ "มืด" แต่ไม่ได้กรองรังสี UV และ IR จากอาร์กเชื่อม',
+  story:'พนักงานคนนี้ต้องเชื่อมและตัดคานเหล็กในโรงซ่อมบำรุง',
+  head:'แต่งตัวให้พนักงานก่อนเริ่มงานเชื่อม',
+  done:'ครบชุดแล้ว ตรวจว่าเลนส์กรองแสงไม่แตก และกั้นม่านเชื่อมให้คนรอบข้างก่อนเริ่มงาน',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย งานเชื่อมควรขออนุญาตทำงานที่มีประกายไฟ (Hot Work Permit) ย้ายวัสดุติดไฟออก ติดม่านกันแสงและระบบดูดควัน แล้วจึงใช้ PPE เป็นอีกชั้นหนึ่ง',
+  notes:`<div class="note"><h3>ลำดับการสวมที่แนะนำ</h3><ol>
+    <li>เอี้ยมกันสะเก็ดไฟ คล้องสายคอและผูกสายเอวให้กระชับ</li>
+    <li>หน้ากากเชื่อมหรือแว่นตาเชื่อม ปรับสายรัดศีรษะให้พอดี และเลือกเบอร์เลนส์ตามกระแสเชื่อม</li>
+    <li>ถุงมือหนังกันความร้อน สวมเป็นลำดับสุดท้าย ให้ข้อมือถุงมือคลุมทับปลายแขนเสื้อ</li></ol></div>
+   <div class="note"><h3>ก่อนเริ่มงานเชื่อม / ตัด</h3><ol>
+    <li>ตรวจเลนส์กรองแสงและแผ่นใสกันสะเก็ด ห้ามใช้เลนส์ที่แตกหรือร้าว</li>
+    <li>ใส่เสื้อแขนยาวผ้าฝ้ายหรือผ้าทนไฟ ไม่ใช่ผ้าใยสังเคราะห์ที่ละลายติดผิว และไม่พับปลายแขนหรือขากางเกงที่สะเก็ดเข้าไปค้างได้</li>
+    <li>ย้ายวัสดุติดไฟออกจากรัศมีงาน และเตรียมถังดับเพลิงไว้ใกล้มือ</li>
+    <li>ทำงานในที่ระบายอากาศดี หรือใช้ระบบดูดควันเชื่อม และกั้นม่านกันแสงให้คนที่อยู่รอบข้าง</li></ol></div>`,
+  zones:{face:[[100,28,100,100]],body:[[88,100,124,340]],hands:[[52,226,70,110],[178,226,70,110]]},
+  order:['sunglasses','weldmask','glasses','plasticapron','vest','weldapron','raincoat','gloves','weldgloves','fabricgloves'],
+  items:[
+   {id:'weldmask',name:'หน้ากากเชื่อม / แว่นตาเชื่อม',en:'Welding helmet / Welding goggles',zone:'face',code:'ISO 7010 M019',
+    protects:['รังสี UV และ IR จากอาร์กเชื่อม ซึ่งทำให้ตาอักเสบและเกิดแผลไหม้ที่ผิวหน้า','แสงจ้าที่ทำให้ตาพร่า','สะเก็ดไฟและเศษโลหะกระเด็นใส่ใบหน้า'],
+    howto:['เลือกเบอร์เลนส์กรองแสงให้เหมาะกับกระแสเชื่อม ตามตารางของผู้ผลิต','หน้ากากเชื่อมต้องครอบทั้งใบหน้าและลำคอ ส่วนแว่นตาเชื่อมใช้ได้กับงานตัดแก๊สหรือบัดกรีแข็งที่เหมาะสม','ลดหน้ากากลงก่อนจุดอาร์กทุกครั้ง'],
+    hint:'หน้ากากเชื่อมครอบทั้งใบหน้า ลองวางบนใบหน้า'},
+   {id:'weldgloves',name:'ถุงมือหนังกันความร้อน',en:'Leather welding gloves',zone:'hands',code:'ISO 7010 M009',
+    protects:['สะเก็ดไฟและเม็ดโลหะร้อนตกใส่มือ','ความร้อนแผ่และชิ้นงานที่ร้อน','รังสี UV จากอาร์กเผาผิวหลังมือ'],
+    howto:['ใช้ถุงมือหนังแบบข้อยาว คลุมทับปลายแขนเสื้อ','รักษาให้แห้ง ถุงมือเปียกนำไฟฟ้าและความร้อนได้ดีขึ้น','เปลี่ยนเมื่อหนังแข็ง ไหม้ หรือมีรู'],
+    hint:'ถุงมือหนังปกป้องมือ ลองวางที่ปลายแขน'},
+   {id:'weldapron',name:'เอี้ยมกันสะเก็ดไฟ',en:'Leather welding bib apron',zone:'body',
+    protects:['สะเก็ดไฟและเม็ดโลหะร้อนตกใส่อกและตัก','สะเก็ดไฟจุดติดเสื้อผ้า'],
+    howto:['ใช้เอี้ยมหนังหรือผ้าทนไฟ คลุมตั้งแต่อกถึงเข่า','คล้องสายคอและผูกสายเอวให้กระชับ','ห้ามมีคราบน้ำมันหรือจาระบีบนเอี้ยม เพราะติดไฟได้'],
+    hint:'เอี้ยมคลุมด้านหน้าลำตัว ลองวางกลางลำตัว'},
+   {id:'sunglasses',name:'แว่นกันแดด',distractor:true,
+    why:'แว่นกันแดดเลนส์มืดก็จริง แต่ไม่ได้กรองรังสี UV และ IR จากอาร์กเชื่อมตามมาตรฐาน ตาอาจอักเสบ (ตาแดง เจ็บ แสบ) หลังเลิกงาน และไม่กันสะเก็ดไฟใส่ใบหน้า'},
+   {id:'glasses',name:'แว่นตานิรภัยใส',distractor:true,
+    why:'แว่นตานิรภัยใสกันเศษโลหะจากงานเจียได้ แต่ไม่มีเลนส์กรองแสงเชื่อม และไม่คลุมใบหน้าจากรังสีและสะเก็ดไฟ'},
+   {id:'gloves',name:'ถุงมือยางไนไตรล์',distractor:true,
+    why:'ถุงมือไนไตรล์ละลายทันทีเมื่อโดนสะเก็ดไฟหรือเม็ดโลหะร้อน และติดไฟได้'},
+   {id:'fabricgloves',name:'ถุงมือผ้า',distractor:true,
+    why:'ถุงมือผ้าบาง สะเก็ดไฟเผาทะลุถึงมือได้ ติดไฟง่าย และไม่กันความร้อนจากชิ้นงาน'},
+   {id:'plasticapron',name:'ผ้ากันเปื้อนพลาสติก',distractor:true,
+    why:'ผ้ากันเปื้อนพลาสติกละลายเป็นรูเมื่อโดนสะเก็ดไฟ และพลาสติกที่ละลายจะติดผิวจนเกิดแผลไหม้'},
+   {id:'raincoat',name:'เสื้อกันฝน',distractor:true,
+    why:'เสื้อกันฝนเป็นพลาสติกที่ติดไฟและละลายได้ ถ้าสะเก็ดไฟตกใส่อาจลุกไหม้ทั้งตัว'},
+   {id:'vest',name:'เสื้อกั๊กสะท้อนแสง',distractor:true,
+    why:'เสื้อกั๊กสะท้อนแสงทำจากผ้าใยสังเคราะห์ที่ละลายเมื่อโดนสะเก็ดไฟ และไม่ได้ออกแบบให้กันความร้อน'}
+  ]},
+ elec:{name:'งานไฟฟ้า (Electrical Work)',scene:'scene-elec',bg:'#2e3440',
+  lede:'ลากอุปกรณ์ไปวางบนตัวพนักงานให้ถูกตำแหน่ง ระวังของหลอกที่ดูคล้ายแต่กันไฟฟ้าดูดหรืออาร์คแฟลชไม่ได้ (แตะอุปกรณ์ แล้วแตะตำแหน่งบนตัวพนักงานก็ได้)',
+  tip:'เคล็ดลับ: "ทำจากยาง" ไม่ได้แปลว่า "กันไฟฟ้า" ต้องเป็นอุปกรณ์ที่ทดสอบและระบุระดับแรงดันไฟฟ้า',
+  story:'พนักงานคนนี้ต้องเปิดตู้สวิตช์บอร์ดเพื่อตรวจวัดและซ่อมบำรุงระบบไฟฟ้าในโรงงาน',
+  head:'แต่งตัวให้พนักงานก่อนทำงานกับตู้ไฟฟ้า',
+  done:'ครบชุดแล้ว ตัดไฟ ล็อกและติดป้าย (LOTO) แล้ววัดยืนยันว่าไม่มีไฟก่อนเริ่มงาน',
+  refsub:'PPE (Personal Protective Equipment) คือด่านสุดท้ายของการป้องกันอันตราย งานไฟฟ้าต้องตัดไฟ ล็อกและติดป้าย (Lockout/Tagout) และวัดยืนยันว่าไม่มีไฟก่อนเสมอ งานนี้ต้องทำโดยผู้ที่ได้รับอนุญาตและผ่านการฝึกอบรมแล้วเท่านั้น',
+  notes:`<div class="note"><h3>ลำดับการสวมที่แนะนำ</h3><ol>
+    <li>ชุดป้องกันอาร์คแฟลช เลือกระดับให้ไม่ต่ำกว่าค่าพลังงานที่ระบุบนป้ายตู้ไฟ และสวมเสื้อผ้าชั้นในที่ไม่ใช่ผ้าใยสังเคราะห์</li>
+    <li>รองเท้านิรภัยกันไฟฟ้า</li>
+    <li>ถุงมือกันไฟฟ้า ตรวจรอยรั่วโดยม้วนอัดลมก่อนสวม แล้วสวมถุงมือหนังป้องกันทับด้านนอก สวมเป็นลำดับสุดท้าย</li></ol></div>
+   <div class="note"><h3>ก่อนเริ่มงานไฟฟ้า</h3><ol>
+    <li>ตัดไฟ ล็อกและติดป้าย (LOTO) แล้ววัดยืนยันว่าไม่มีไฟด้วยเครื่องมือวัดที่ตรวจสอบแล้ว</li>
+    <li>ถุงมือกันไฟฟ้าต้องระบุระดับแรงดัน (Class) และยังอยู่ในรอบการทดสอบ</li>
+    <li>ถอดเครื่องประดับโลหะ เช่น แหวน นาฬิกา และสร้อย</li>
+    <li>ยืนบนแผ่นยางฉนวน ใช้เครื่องมือด้ามฉนวน และอยู่นอกระยะเขตอาร์คแฟลชถ้าไม่ได้สวมชุดที่เหมาะสม</li></ol></div>`,
+  zones:{body:[[62,100,176,330]],hands:[[52,222,70,114],[178,222,70,114]],feet:[[80,440,140,90]]},
+  order:['arcsuit','vest','raincoat','egloves','weldgloves','gloves','fabricgloves','eshoes','rainboots','sneakers'],
+  items:[
+   {id:'arcsuit',name:'ชุดป้องกันอาร์คแฟลช',en:'Arc-flash protective suit',zone:'body',code:'ISO 7010 M010',
+    protects:['ความร้อนสูงมากและแสงจ้าจากอาร์คแฟลชเมื่อเกิดลัดวงจร','ผ้าติดไฟหรือละลายติดผิวขณะเกิดอาร์ค','เศษโลหะหลอมเหลวที่กระเด็นออกจากตู้'],
+    howto:['ระดับชุด (ค่า ATPV, cal/cm²) ต้องไม่ต่ำกว่าค่าพลังงานที่ระบุบนป้ายเตือนตู้ไฟ','รูดซิปและปิดแถบให้สนิท สวมร่วมกับฮู้ดหรือกระบังหน้ากันอาร์คตามระดับที่กำหนด','ห้ามสวมเสื้อผ้าชั้นในที่เป็นผ้าใยสังเคราะห์'],
+    hint:'ชุดป้องกันอาร์คแฟลชคลุมทั้งร่างกาย ลองวางกลางลำตัว'},
+   {id:'egloves',name:'ถุงมือกันไฟฟ้า',en:'Insulated rubber gloves (with leather protectors)',zone:'hands',code:'ISO 7010 M009',needs:'arcsuit',
+    needMsg:'ถุงมือกันไฟฟ้าต้องสวมหลังชุดป้องกันอาร์คแฟลช เพื่อให้ข้อมือถุงมือซ้อนกับปลายแขนเสื้อ ไม่มีผิวหนังโผล่ตรงข้อมือ',
+    protects:['ไฟฟ้าดูดเมื่อมือสัมผัสส่วนที่มีไฟ','ความร้อนและสะเก็ดจากอาร์ค (ถุงมือหนังที่สวมทับ)'],
+    howto:['ใช้ถุงมือยางฉนวนที่ระบุระดับแรงดัน (Class) ให้สูงกว่าแรงดันที่ทำงาน','ม้วนอัดลมตรวจรอยรั่วทุกครั้งก่อนสวม และตรวจวันทดสอบบนถุงมือ','สวมถุงมือหนังป้องกันทับด้านนอก เพื่อกันยางฉนวนขาด'],
+    hint:'ถุงมือกันไฟฟ้าปกป้องมือ ลองวางที่ปลายแขน'},
+   {id:'eshoes',name:'รองเท้านิรภัยกันไฟฟ้า',en:'Electrical hazard (EH) safety shoes',zone:'feet',code:'ISO 7010 M008',
+    protects:['กระแสไฟฟ้าไหลผ่านร่างกายลงพื้นทางเท้า','ของหนักตกทับเท้า'],
+    howto:['ใช้รุ่นที่ระบุว่ากันไฟฟ้า (EH) พื้นเป็นฉนวน และไม่มีโลหะที่ทะลุถึงพื้นรองเท้า','รักษาพื้นรองเท้าให้แห้งและสะอาด ความชื้นหรือคราบสกปรกลดการเป็นฉนวน','ใช้ร่วมกับแผ่นยางฉนวนปูพื้นหน้าตู้ไฟ'],
+    hint:'รองเท้านิรภัยปกป้องเท้า ลองวางที่ส่วนล่างสุด'},
+   {id:'gloves',name:'ถุงมือยางไนไตรล์',distractor:true,
+    why:'ถุงมือไนไตรล์ดูเป็นยาง แต่บางมาก ไม่ได้ทดสอบและไม่ได้ระบุระดับแรงดัน กระแสไฟจึงทะลุถึงมือได้'},
+   {id:'weldgloves',name:'ถุงมือหนังเชื่อม',distractor:true,
+    why:'ถุงมือหนังกันความร้อนได้ แต่ไม่เป็นฉนวนไฟฟ้า และเมื่อชื้นเหงื่อจะยิ่งนำไฟฟ้า ถุงมือหนังใช้เป็นชั้นป้องกันที่สวมทับถุงมือยางฉนวนเท่านั้น'},
+   {id:'fabricgloves',name:'ถุงมือผ้า',distractor:true,
+    why:'ถุงมือผ้าไม่เป็นฉนวน ซึมเหงื่อจนนำไฟฟ้าได้ และติดไฟเมื่อเกิดอาร์ค'},
+   {id:'vest',name:'เสื้อกั๊กสะท้อนแสง',distractor:true,
+    why:'เสื้อกั๊กสะท้อนแสงเป็นผ้าใยสังเคราะห์ที่ละลายติดผิวเมื่อเกิดอาร์คแฟลช ทำให้แผลไหม้รุนแรงขึ้น และไม่คลุมแขนและขา'},
+   {id:'raincoat',name:'เสื้อกันฝน',distractor:true,
+    why:'เสื้อกันฝนเป็นพลาสติกที่ติดไฟและละลายทันทีเมื่อเกิดอาร์คแฟลช'},
+   {id:'rainboots',name:'รองเท้าบูทยางกันฝน',distractor:true,
+    why:'บูทยางกันฝนดูเหมือนเป็นฉนวน แต่ไม่ได้ทดสอบหรือรับรองการกันไฟฟ้า และไม่มีหัวกันกระแทก จึงใช้แทนรองเท้ากันไฟฟ้าไม่ได้'},
+   {id:'sneakers',name:'รองเท้าผ้าใบ',distractor:true,
+    why:'รองเท้าผ้าใบไม่ได้รับรองการเป็นฉนวน ผ้าซึมน้ำและเหงื่อจนนำไฟฟ้าได้ และไม่มีหัวกันกระแทก'}
+  ]}
+};
+const SIGN={};Object.values(SCEN).forEach(sc=>sc.items.filter(i=>!i.distractor).forEach(i=>{SIGN[i.id]=ICON[i.id].replace(/fill="#(?!fff\b)[0-9a-fA-F]{3,6}"/g,'fill="#fff"').replace(/stroke="#[0-9a-fA-F]{3,6}"/g,'stroke="#1d5fa8"')}));
+let SC,ITEMS,ORDER,ZONES,REQ,lastKey=null;const bestBy={};
+function pickScenario(){const keys=Object.keys(SCEN);const key=keys[Math.floor(Math.random()*keys.length)];
+  lastKey=key;SC=SCEN[key];ITEMS=SC.items;ORDER=SC.order;ZONES=SC.zones;REQ=ITEMS.filter(i=>!i.distractor).length;return key}
+const $=s=>document.querySelector(s);
+const svg=$('#fig'),tray=$('#tray'),fb=$('#feedback'),stage=$('#stage'),hl=$('#hl');
+let placed=new Set(),bad=new Set(),miss=0,selected=null;
+let started=false,t0=0,elapsed=0,tick=null,best=null;
+const fmt=ms=>{const t=Math.floor(ms/100),m=Math.floor(t/600),sec=Math.floor(t/10)%60,d=t%10;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')+'.'+d};
+function stopTimer(){if(tick){clearInterval(tick);tick=null}}
+
+/* ===== 8-bit music & SFX (MIDI-style, Web Audio) ===== */
+const SONG={"mel": [72, -1, 76, 79, 76, -1, 72, 74, 76, -1, 72, 69, 72, -1, -1, -1, 77, -1, 76, 74, 72, -1, 74, 76, 74, -1, 71, 67, 71, 74, -1, -1, 79, -1, 79, 76, 84, -1, 79, 76, 81, -1, 79, 76, 72, -1, 76, -1, 77, 76, 74, 72, 74, -1, 77, 76, 74, -1, 71, 74, 79, -1, -1, -1], "bass": [48, -1, 55, -1, 60, -1, 55, -1, 45, -1, 52, -1, 57, -1, 52, -1, 41, -1, 48, -1, 53, -1, 48, -1, 43, -1, 50, -1, 55, -1, 50, -1, 48, -1, 55, -1, 60, -1, 55, -1, 45, -1, 52, -1, 57, -1, 52, -1, 41, -1, 48, -1, 53, -1, 48, -1, 43, -1, 50, -1, 55, -1, 50, -1], "drum": [1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2], "bpm": 132};
+const SND=(()=>{
+  let ctx=null,master=null,on=true,playing=false,timer=null,step=0,nextT=0,speed=1;
+  const hz=n=>440*Math.pow(2,(n-69)/12);
+  function init(){if(ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+    ctx=new AC();master=ctx.createGain();master.gain.value=on?0.5:0;master.connect(ctx.destination);return true}
+  function tone(n,t,d,type,vol){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=hz(n);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.008);g.gain.exponentialRampToValueAtTime(0.0008,t+d);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+d+0.02)}
+  let nbuf=null;
+  function noise(t,d,vol,hp){if(!nbuf){nbuf=ctx.createBuffer(1,ctx.sampleRate*0.3,ctx.sampleRate);const a=nbuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}
+    const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=nbuf;f.type='highpass';f.frequency.value=hp;
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0008,t+d);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+d+0.02)}
+  function kick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(40,t+0.12);
+    g.gain.setValueAtTime(0.5,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.14);o.connect(g);g.connect(master);o.start(t);o.stop(t+0.16)}
+  const stepDur=()=>60/(SONG.bpm*speed)/2;
+  function sched(){while(nextT<ctx.currentTime+0.12){const i=step%SONG.mel.length,d=stepDur(),m=SONG.mel[i],b=SONG.bass[i],r=SONG.drum[i];
+      if(m>=0)tone(m,nextT,d*0.95,'square',0.10);
+      if(b>=0)tone(b,nextT,d*1.8,'triangle',0.30);
+      noise(nextT,0.03,0.05,7000);if(r===1)kick(nextT);if(r===3)noise(nextT,0.12,0.16,1500);
+      nextT+=d;step++}}
+  return{
+    start(){if(!init())return;ctx.resume();this.stop();step=0;speed=1;nextT=ctx.currentTime+0.06;playing=true;timer=setInterval(sched,25);sched()},
+    stop(){playing=false;if(timer){clearInterval(timer);timer=null}},
+    setSpeed(v){speed=v},
+    ok(){if(!init())return;const t=ctx.currentTime;tone(84,t,0.09,'square',0.16);tone(91,t+0.08,0.16,'square',0.16)},
+    bad(){if(!init())return;const t=ctx.currentTime;tone(46,t,0.16,'sawtooth',0.18);tone(45,t+0.15,0.24,'sawtooth',0.18)},
+    click(){if(!init())return;tone(79,ctx.currentTime,0.05,'square',0.08)},
+    win(){if(!init())return;this.stop();let t=ctx.currentTime+0.05;[[72,.12],[76,.12],[79,.12],[84,.5]].forEach(([n,d])=>{tone(n,t,d,'square',0.16);tone(n-24,t,d,'triangle',0.3);t+=d});
+      [76,79,84].forEach(n=>tone(n,t-0.5,0.6,'square',0.06))},
+    toggle(){on=!on;if(master)master.gain.setTargetAtTime(on?0.5:0,ctx.currentTime,0.02);return on},
+    get on(){return on}
+  }})();
+function startGame(){
+  SND.start();
+  started=true;t0=performance.now();elapsed=0;$('#startOv').hidden=true;tray.classList.remove('locked');
+  $('#timerChip').classList.add('run');$('#timerChip').classList.remove('end');
+  stopTimer();tick=setInterval(()=>{elapsed=performance.now()-t0;$('#time').textContent=fmt(elapsed)},100);
+  showInfo('เริ่มจับเวลาแล้ว! · '+SC.name,'ลากอุปกรณ์ที่ถูกต้องไปวางบนตัวพนักงาน ระวังของหลอก'+(ITEMS.some(i=>i.needs)?'และลำดับการสวม':''));
+  const f=tray.querySelector('.item');if(f)f.focus();
+}
+
+function iconSvg(id,set=ICON){return `<svg viewBox="0 0 64 64" aria-hidden="true">${set[id]}</svg>`}
+function byId(id){return ITEMS.find(i=>i.id===id)}
+
+function buildTray(){
+  const rings=[$('#ringL'),$('#ringR'),$('#ringB')];rings.forEach(r=>r.innerHTML='');
+  const n=ORDER.length,side=Math.min(4,Math.ceil(n/2));
+  ORDER.forEach((id,i)=>{const it=byId(id);
+    const ring=i<side?rings[0]:i<side*2?rings[1]:rings[2];
+    const b=document.createElement('button');b.type='button';b.className='item';b.id='item-'+id;b.dataset.id=id;
+    b.setAttribute('aria-pressed','false');b.innerHTML=iconSvg(id)+`<span>${it.name}</span>`;
+    attachDrag(b);ring.appendChild(b);});
+}
+function buildCards(){
+  $('#cards').innerHTML=ITEMS.filter(i=>!i.distractor).map(it=>`
+   <article class="card"><div class="card-top"><div class="sign">${iconSvg(it.id,SIGN)}</div>
+   <div><h3>${it.name}</h3><div class="code">${it.en}${it.code?' · '+it.code:''}</div></div></div>
+   <h4>ป้องกันอะไร</h4><ul>${it.protects.map(x=>`<li>${x}</li>`).join('')}</ul>
+   <h4>สวมให้ถูกต้อง</h4><ul>${it.howto.map(x=>`<li>${x}</li>`).join('')}</ul></article>`).join('');
+}
+function toSvg(cx,cy){const p=new DOMPoint(cx,cy).matrixTransform(svg.getScreenCTM().inverse());return p}
+function inRects(rs,p){return rs.some(([x,y,w,h])=>p.x>=x&&p.x<=x+w&&p.y>=y&&p.y<=y+h)}
+function zoneAt(p){let best=null,area=1e9;for(const [z,rs] of Object.entries(ZONES)){for(const r of rs){if(inRects([r],p)&&r[2]*r[3]<area){area=r[2]*r[3];best=z}}}return best}
+function highlight(z){hl.innerHTML=z?ZONES[z].map(([x,y,w,h])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>`).join(''):''}
+
+function attachDrag(el){
+  let st=null,ghost=null;
+  el.addEventListener('pointerdown',e=>{
+    if(!started||el.classList.contains('done')||el.classList.contains('bad'))return;
+    st={x:e.clientX,y:e.clientY,moved:false};el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!st)return;
+    if(!st.moved&&Math.hypot(e.clientX-st.x,e.clientY-st.y)>6){
+      st.moved=true;ghost=document.createElement('div');ghost.className='ghost';ghost.innerHTML=iconSvg(el.dataset.id);
+      ghost.firstChild.style.cssText='width:100%;height:100%';document.body.appendChild(ghost);select(null);}
+    if(st.moved){ghost.style.transform=`translate(${e.clientX-34}px,${e.clientY-34}px)`;
+      const r=svg.getBoundingClientRect();
+      const over=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      highlight(over?zoneAt(toSvg(e.clientX,e.clientY)):null);}
+  });
+  const end=(e,cancel)=>{
+    if(!st)return;const moved=st.moved;st=null;
+    if(ghost){ghost.remove();ghost=null}highlight(null);
+    if(cancel)return;
+    if(moved)drop(el.dataset.id,e.clientX,e.clientY);
+    else select(selected===el.dataset.id?null:el.dataset.id);
+  };
+  el.addEventListener('pointerup',e=>end(e,false));
+  el.addEventListener('pointercancel',e=>end(e,true));
+  el.addEventListener('click',e=>{if(started&&e.detail===0&&!el.classList.contains('done')&&!el.classList.contains('bad'))select(selected===el.dataset.id?null:el.dataset.id)});
+}
+function select(id){
+  selected=id;document.querySelectorAll('.item').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===id?'true':'false'));
+  if(id&&placed.size<REQ)showInfo(`เลือก “${byId(id).name}” แล้ว`,'แตะตำแหน่งบนตัวพนักงานที่ต้องสวมอุปกรณ์ชิ้นนี้');
+}
+svg.addEventListener('click',e=>{if(!started||!selected)return;const id=selected;select(null);drop(id,e.clientX,e.clientY)});
+
+function drop(id,cx,cy){
+  if(!started)return;
+  const r=svg.getBoundingClientRect();
+  if(cx<r.left||cx>r.right||cy<r.top||cy>r.bottom)return;
+  const p=toSvg(cx,cy),z=zoneAt(p),it=byId(id);
+  if(!z)return;
+  if(it.distractor){mistake();bad.add(id);$('#item-'+id).classList.add('bad');
+    return showResult(false,it.name+' ใช้แทน PPE ไม่ได้',null,`<p>${it.why}</p>`)}
+  if(!inRects(ZONES[it.zone],p)){mistake();return showResult(false,'ยังไม่ใช่ตำแหน่งของ'+it.name,null,`<p>${it.hint}</p>`)}
+  if(it.needs&&!placed.has(it.needs)){mistake();
+    return showResult(false,'สวม'+byId(it.needs).name+'ก่อน',null,`<p>${it.needMsg}</p>`)}
+  placed.add(id);if(placed.size<REQ)SND.ok();if(REQ-placed.size===1)SND.setSpeed(1.15);$('#item-'+id).classList.add('done');$('#L-'+id).classList.add('on');
+  $('#count').textContent=placed.size;
+  let fin='';
+  if(placed.size===REQ){SND.win();stopTimer();started=false;elapsed=performance.now()-t0;$('#time').textContent=fmt(elapsed);
+    $('#timerChip').classList.remove('run');$('#timerChip').classList.add('end');
+    const pb=bestBy[lastKey];const nb=pb===undefined||elapsed<pb;if(nb)bestBy[lastKey]=elapsed;$('#best').textContent=fmt(bestBy[lastKey]);$('#bestChip').hidden=false;
+    fin=` · เวลา ${fmt(elapsed)}${nb?' (สถิติใหม่!)':''}`;}
+  showResult(true,it.name,it.en,`<h4>ป้องกันอะไร</h4><ul>${it.protects.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <h4>สวมให้ถูกต้อง</h4><ul>${it.howto.map(x=>`<li>${x}</li>`).join('')}</ul>`+
+    (placed.size===REQ?`<div class="done-banner">${SC.done} · พลาด ${miss} ครั้ง${fin}${miss===0?' ยอดเยี่ยม!':''}<br><button class="btn" type="button" onclick="document.getElementById('reset').click()" style="margin-top:8px">เล่นอีกครั้ง</button></div>`:''));
+}
+function mistake(){SND.bad();miss++;$('#miss').textContent=miss;stage.classList.remove('shake');void stage.offsetWidth;stage.classList.add('shake')}
+let toastT=null;
+function toast(ok,msg){const t=$('#toast');t.textContent=(ok?'✓ ':'✕ ')+msg;t.className='toast show '+(ok?'ok':'bad');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1900)}
+function showResult(ok,title,en,html){
+  toast(ok,title);
+  fb.innerHTML=`<span class="tag ${ok?'ok':'bad'}">${ok?'ถูกต้อง':'ลองใหม่'}</span><h3>${title}</h3>${en?`<p class="en">${en}</p>`:''}${html}`;
+}
+function showInfo(title,text){fb.innerHTML=`<span class="tag info">วิธีเล่น</span><h3>${title}</h3><p>${text}</p>`}
+function reset(){
+  placed=new Set();bad=new Set();miss=0;selected=null;
+  SND.stop();stopTimer();started=false;elapsed=0;$('#time').textContent=fmt(0);
+  $('#timerChip').classList.remove('run','end');$('#startOv').hidden=false;
+  $('#count').textContent=0;$('#miss').textContent=0;
+  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('on'));
+  const key=pickScenario();
+  document.querySelectorAll('.scene').forEach(g=>g.style.display=g.id===SC.scene?'':'none');
+  stage.style.background=SC.bg;tray.style.background=SC.bg;
+  $('#jobTitle').textContent=SC.name;$('#lede').textContent=SC.lede;$('#tip').textContent=SC.tip;
+  $('#total').textContent=REQ;$('#startJob').textContent=SC.name;
+  $('#startTxt').textContent=REQ===1?'หาอุปกรณ์ที่ถูกต้องเพียงชิ้นเดียวให้เร็วที่สุด เวลาจะเริ่มนับทันทีที่กดปุ่ม':`สวม PPE ให้ครบ ${REQ} ชิ้นให้เร็วที่สุด เวลาจะเริ่มนับทันทีที่กดปุ่ม`;
+  $('#refh').textContent=`คู่มือ PPE ${SC.name} ${REQ} ชิ้น`;$('#refsub').textContent=SC.refsub;$('#notes').innerHTML=SC.notes;
+  document.title='ภารกิจสวม PPE '+SC.name;
+  if(bestBy[key]!==undefined){$('#best').textContent=fmt(bestBy[key]);$('#bestChip').hidden=false}else{$('#bestChip').hidden=true}
+  buildCards();buildTray();tray.classList.add('locked');
+  fb.innerHTML=`<span class="tag info">วิธีเล่น</span><h3>${SC.head}</h3>
+   <p>${SC.story} มีอุปกรณ์ที่ถูกต้อง ${REQ} ชิ้น และของหลอกอีก ${ITEMS.length-REQ} ชิ้น</p>
+   <h4>ทำอย่างไร</h4><ol><li>ลากอุปกรณ์ที่วางอยู่รอบฉากไปวางบนร่างกาย</li><li>วางถูกตำแหน่ง อุปกรณ์จะสวมให้ทันที พร้อมคำอธิบายว่าป้องกันอะไร</li><li>กดปุ่ม <b>เริ่มเกม</b> เวลาจะเริ่มนับพร้อมเพลงประกอบ และหยุดเมื่อสวมครบ (ปิดเพลงได้ที่ปุ่ม 🔊)</li><li>วางผิดตำแหน่ง สวมผิดลำดับ หรือเลือกของหลอก จะนับเป็นการพลาด</li></ol>`;
+}
+$('#reset').addEventListener('click',reset);
+$('#startBtn').addEventListener('click',startGame);
+$('#musicBtn').addEventListener('click',e=>{const v=SND.toggle();e.currentTarget.textContent=v?'🔊 เพลง: เปิด':'🔇 เพลง: ปิด';e.currentTarget.setAttribute('aria-pressed',v)});
+reset();
+</script>
+
+</body></html>
